@@ -32,3 +32,32 @@ body {
   }
   
 }
+
+
+.AccordionContent {
+  overflow: hidden;
+}
+.AccordionContent[data-state='open'] {
+  animation: slideDown 3000ms ease-in ease-out;
+}
+.AccordionContent[data-state='closed'] {
+  animation: slideUp 3000ms ease-in ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    height: 0;
+  }
+  to {
+    height: 100%;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: 0;
+  }
+  to {
+    height: 100%;
+  }
+}
