@@ -22,8 +22,10 @@ function Terminal(props: { current: string, data: any, sendKey: {key:string, key
   useEffect(() => {
     console.log("Terminal", step);
     console.log("Terminal", data[step - 1].curlInput) ;
+    console.log("Terminal", data[step - 1].curlInput);
     
   }, [step, data]);
+  
   if (!apiId) {
     return <div>Api id not found</div>;
   }
@@ -194,7 +196,7 @@ function Terminal(props: { current: string, data: any, sendKey: {key:string, key
   // },
   return (
     <div className="h-[1000px]">
-      <Button
+      <Button className="my-6"
         onClick={() =>
           parseCommand(
             `curl --request POST --url https://api.unkey.dev/v1/keys.createKey --header 'Authorization: Bearer <token>' --header 'Content-Type: application/json' --data '{"apiId": "api_1234"}'`
@@ -206,7 +208,7 @@ function Terminal(props: { current: string, data: any, sendKey: {key:string, key
       <Button onClick={() => createKeyTest()}>Create Key</Button>
       <Button onClick={() => verifyKeyTest()}>Verify Key</Button>
       <Button onClick={() => setCommand()}>Set Command</Button>
-      <p>{currentTerminal}</p>
+      <p className="my-6"></p>
       <ReactTerminal
         setTemporaryContent={() => setTemporaryContent("Working...")}
         prompt={prompt}

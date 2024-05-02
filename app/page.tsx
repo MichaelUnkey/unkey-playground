@@ -4,12 +4,15 @@ import { useState, useEffect } from "react";
 import KeyPlayground from "@/components/keyPlayground";
 import { TerminalContextProvider } from "react-terminal";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { setUncaughtExceptionCaptureCallback } from "process";
 
 export default function Home() {
   const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const now = Date.now();
+  const currentTimestamp = Date.now()
   const [key, setKey] = useState({
     keyId: "",
     key: "",
@@ -18,115 +21,126 @@ export default function Home() {
     {
       step: 1,
       name: "Create Key",
-      curlCommand: `curl --request POST \
-    --url https://api.unkey.dev/v1/keys.createKey \
-    --header 'Authorization: Bearer <token>' \
-    --header 'Content-Type: application/json' \
+      curlCommand: `curl --request POST 
+    --url https://api.unkey.dev/v1/keys.createKey 
+    --header 'Authorization: Bearer <token>' 
+    --header 'Content-Type: application/json' 
     --data '{
     "apiId": ${apiId}
   }'`,
       curlInput: "",
+      curlResponse: "",
       complete: false,
     },
     {
       step: 2,
       name: "Get Key",
-      curlCommand: `curl --request GET \
-    --url https://api.unkey.dev/v1/keys.getKey?keyId=key_12345 \
+      curlCommand: `curl --request GET 
+    --url https://api.unkey.dev/v1/keys.getKey?keyId=${key.keyId} 
     --header 'Authorization: Bearer <token>'`,
       curlInput: "",
+      curlResponse: "",
       complete: false,
     },
     {
       step: 3,
       name: "Verify Key",
-      curlCommand: `curl --request POST \
-    --url https://api.unkey.dev/v1/keys.verifyKey \
-    --header 'Content-Type: application/json' \
+      curlCommand: `curl --request POST 
+    --url https://api.unkey.dev/v1/keys.verifyKey 
+    --header 'Content-Type: application/json' 
     --data '{
-    "apiId": "api_1234",
-    "key": "sk_1234"
+    "apiId": ${apiId},
+    "key": ${key.key}
   }'`,
       curlInput: "",
+      curlResponse: "",
       complete: false,
     },
     {
       step: 4,
       name: "OwnerId",
-      curlCommand: `curl --request POST \
-    --url https://api.unkey.dev/v1/keys.updateKey \
-    --header 'Authorization: Bearer <token>' \
-    --header 'Content-Type: application/json' \
+      curlCommand: `curl --request POST 
+    --url https://api.unkey.dev/v1/keys.updateKey 
+    --header 'Authorization: Bearer <token>' 
+    --header 'Content-Type: application/json' 
     --data '{
-    "keyId": "key_1234",
+    "keyId": ${key.keyId},
     "name": "Customer X",
     "ownerId": "user_123",
   }'`,
       curlInput: "",
+      curlResponse: "",
       complete: false,
     },
     {
       step: 5,
       name: "Expiration",
-      curlCommand: `curl --request POST \
-    --url https://api.unkey.dev/v1/keys.updateKey \
-    --header 'Authorization: Bearer <token>' \
-    --header 'Content-Type: application/json' \
+      curlCommand: `curl --request POST 
+    --url https://api.unkey.dev/v1/keys.updateKey 
+    --header 'Authorization: Bearer <token>' 
+    --header 'Content-Type: application/json' 
     --data '{
-    "expires": <TimeStamp>,
+    "keyId": ${key.keyId},
+    "expires": ${currentTimestamp + 100000},
   }'`,
       curlInput: "",
+      curlResponse: "",
       complete: false,
     },
     {
       step: 6,
       name: "Verify Key",
-      curlCommand: `curl --request POST \
-    --url https://api.unkey.dev/v1/keys.verifyKey \
-    --header 'Content-Type: application/json' \
+      curlCommand: `curl --request POST 
+    --url https://api.unkey.dev/v1/keys.verifyKey 
+    --header 'Content-Type: application/json' 
     --data '{
-    "apiId": "api_1234",
-    "key": "sk_1234"
+    "apiId": ${apiId},
+    "key": ${key.key}
   }'`,
       curlInput: "",
+      curlResponse: "",
       complete: false,
     },
     {
       step: 7,
       name: "Get Analytics",
-      curlCommand: `curl --request GET \
-    --url https://api.unkey.dev/v1/keys.getVerifications?keyId=<keyId> \
+      curlCommand: `curl --request GET 
+    --url https://api.unkey.dev/v1/keys.getVerifications?keyId=${key.keyId} 
     --header 'Authorization: Bearer <token>'`,
       curlInput: "",
+      curlResponse: "",
       complete: false,
     },
     {
       step: 8,
       name: "Disable Key",
-      curlCommand: `curl --request POST \
-    --url https://api.unkey.dev/v1/keys.updateKey \
-    --header 'Authorization: Bearer <token>' \
-    --header 'Content-Type: application/json' \
+      curlCommand: `curl --request POST 
+    --url https://api.unkey.dev/v1/keys.updateKey 
+    --header 'Authorization: Bearer <token>' 
+    --header 'Content-Type: application/json' 
     --data '{
+    "keyId": ${key.keyId},
     "enabled": false,
   }'`,
       curlInput: "",
+      curlResponse: "",
       complete: false,
     },
     {
       step: 9,
       name: "Verify Key",
-      curlCommand: `curl --request POST \
-    --url https://api.unkey.dev/v1/keys.verifyKey \
-    --header 'Content-Type: application/json' \
+      curlCommand: `curl --request POST 
+    --url https://api.unkey.dev/v1/keys.verifyKey 
+    --header 'Content-Type: application/json' 
     --data '{
-    "apiId": "api_1234",
-    "key": "sk_1234"
+      "apiId": ${apiId},
+      "key": ${key.key}
   }'`,
       curlInput: "",
+      curlResponse: "",
       complete: false,
     },
-    { step: 10, name: "Sign up", curlCommand: ``, curlInput: "", complete: false },
+    { step: 10, name: "Sign up", curlCommand: ``, curlInput: "",curlResponse: "", complete: false },
   ];
   
   type key = {
@@ -142,36 +156,27 @@ export default function Home() {
     if(searchParams.get("step") !== null && searchParams.get("step") !== undefined){
       setStep(parseInt(searchParams.get("step") ?? "1"));
     }
-    console.log("parent", searchParams.get("step"));
+    //console.log("parent", searchParams.get("step"));
     //console.log("parent", currentTerminal);
     //console.log("parent", data[step - 1].curlCommand);
     setCurrentTerminal(data[step - 1].curlCommand);
-    console.log("parent", data[step - 1].curlInput);
+    //console.log("parent", data[step - 1].curlInput);
     
     
   }, [currentTerminal, data, currentTerminal,pathname]);
   const handleTerminal = (terminal: string) => {
     //console.log(terminal);
   };
-  function incrementStep() {
-    setStep(step + 1);
-
-    //get command from playground
-    //pass command to terminal
-
-    //get output from terminal
-    //verify correct output
-    //next step
+  function handleInput(){
+    data[step - 1].curlInput = data[step - 1].curlCommand;
+    console.log("parent", data[step - 1].curlInput);
   }
   const setData = (input: string) => {
     data[step - 1].curlInput = input;
     console.log("parent", data[step - 1].curlInput);
   };
-  const handleSteps = (step: number) => {
-    //console.log("parent", step);
+  
 
-    setCurrentTerminal(data[step - 1].curlCommand);
-  };
   return (
     <div className="flex flex-col mx-auto w-full justify-center">
       <div className="flex flex-col mx-auto w-full justify-center max-w-[1440px]">
@@ -183,7 +188,7 @@ export default function Home() {
             <KeyPlayground
               className=""
               step={step}
-              setSteps={(step: number) => handleSteps(step)}
+              setInput={() => handleInput()}
               currentTerminal={currentTerminal}
               data={data}
             />
