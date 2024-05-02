@@ -7,60 +7,53 @@ import {
 } from "./ui/accordion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "./ui/button";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState} from "react";
 
 
 type props = {
   className?: string;
   step?: number;
-  setCurrentTerminal: (terminal: string) => void;
+  setSteps: (step: number) => void;
   currentTerminal: string;
-  terminalSteps: Array<{ // Figure out why I can not use callback here instead... Was not working for some reason
+  data: Array<{ 
     step: number;
     curlCommand: string;
+    curlInput: string;
+    complete: boolean;
   }>;
 }
+
 export default function KeyPlayground(props: props) {
-  // Existing code...
-  const terminalSteps = props.terminalSteps;
-  const currentTerminal = props.currentTerminal;
-  const setCurrentTerminal = props.setCurrentTerminal;
+  
   const className = props.className;
-
-
+  const data = props.data;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [step, setStep] = useState(props.step);
-  const search = new URLSearchParams();
-  useEffect(() => {
-    if(step){
-      createQueryString('step', step.toString());
-    }
-    console.log(step);
-    
-    
-  }, [step])
 
+function handleSteps(step: number){
+  router.push(pathname + '?' + createQueryString('step', step.toString()));
+}
 
-  const createQueryString = useCallback(
-    (key: string, value: string) => {
-      
-      search.set(key, value);
-      return search.toString();
-    },
-    [searchParams]
-  )
+const createQueryString = useCallback(
+  (name: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set(name, value)
+
+    return params.toString()
+  },
+  [searchParams]
+)
 
   return (
     <Accordion type="single" collapsible value={`step-${searchParams.get("step")?.toString()}`} >
       <AccordionItem value="step-1">
-        <AccordionTrigger onFocus={() => router.push(pathname + '?' + createQueryString('step', '1'))}>1. Create Key</AccordionTrigger>
+        <AccordionTrigger onFocus={() => handleSteps(1)}>1. Create Key</AccordionTrigger>
         <AccordionContent className="AccordionContent">
           <p>Creating a key for your users can be done in two ways. </p>
           <p>
-            The first is using the Unkey API at the following
-            ‘https://api.unkey.dev/v1/keys.createKey'
+            The first is using the Unkey API at the following:
+            https://api.unkey.dev/v1/keys.createKey
           </p>
           <p>
             This can be done with a curl command. The bearer token and apiId are
@@ -69,7 +62,7 @@ export default function KeyPlayground(props: props) {
           </p>
           <p>Example</p>
           <CodeComponent
-            val={terminalSteps[0]?.curlCommand ? terminalSteps[0]?.curlCommand : ``}
+            val={data[0]?.curlCommand ? data[0]?.curlCommand : ``}
           />
           <p>
             Or to have this done automatically click the Create Key button
@@ -83,11 +76,11 @@ export default function KeyPlayground(props: props) {
 }`}
           />
           <Button
-            onClick={() => props.setCurrentTerminal(terminalSteps[0].curlCommand.toString())} variant={"outline"} >Test</Button>
+            onClick={() => handleSteps(1)} variant={"outline"} >Test</Button>
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="step-2">
-        <AccordionTrigger onFocus={() => router.push(pathname + '?' + createQueryString('step', '2'))}>2. Get Key</AccordionTrigger>
+        <AccordionTrigger onFocus={() => handleSteps(2)}>2. Get Key</AccordionTrigger>
         <AccordionContent>
           <p>
             Next we can retrieve a key by its ID. Like before, either use the
@@ -114,10 +107,12 @@ export default function KeyPlayground(props: props) {
 	"enabled":true
 }`}
           />
+          <Button
+            onClick={() => handleSteps(2)} variant={"outline"} >Test</Button>
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="step-3">
-        <AccordionTrigger onFocus={() => router.push(pathname + '?' + createQueryString('step', '3'))}>3. Verify Key</AccordionTrigger>
+        <AccordionTrigger onFocus={() => handleSteps(3)}>3. Verify Key</AccordionTrigger>
         <AccordionContent>
           <p>
             use the command of button to verify the key we just got back in the
@@ -143,10 +138,12 @@ export default function KeyPlayground(props: props) {
     "permissions": []
 }`}
           />
+          <Button
+            onClick={() => handleSteps(3)} variant={"outline"} >Test</Button>
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="step-4">
-        <AccordionTrigger onFocus={() => router.push(pathname + '?' + createQueryString('step', '4'))}>4. Update Key</AccordionTrigger>
+        <AccordionTrigger onFocus={() => handleSteps(4)}>4. Update Key</AccordionTrigger>
         <AccordionContent>
           <p>Same story here: </p>
           <p>Example</p>
@@ -163,10 +160,12 @@ export default function KeyPlayground(props: props) {
           />
           <p>Example</p>
           <CodeComponent val={`{}`} />
+          <Button
+            onClick={() => handleSteps(4)} variant={"outline"} >Test</Button>
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="step-5">
-        <AccordionTrigger onFocus={() => router.push(pathname + '?' + createQueryString('step', '5'))}>5. Add Expiration</AccordionTrigger>
+        <AccordionTrigger onFocus={() => handleSteps(5)}>5. Add Expiration</AccordionTrigger>
         <AccordionContent>
           <p>Same thing again but expiration instead of ownerId and name. The input required is “expires”:  UnixTimestampMiliseconds</p>
           <p>To help help here is a button that will copy the current unix timestamp plus 1 day. Feel free to use your own value if you want. </p>
@@ -181,10 +180,12 @@ export default function KeyPlayground(props: props) {
           <p>Again we provide a just do the thing button for you. </p>
           <p>Example</p>
             <CodeComponent val={`{}`} />
+            <Button
+            onClick={() => handleSteps(5)} variant={"outline"} >Test</Button>
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="step-6">
-        <AccordionTrigger onFocus={() => router.push(pathname + '?' + createQueryString('step', '6'))}>6. Verify Key</AccordionTrigger>
+        <AccordionTrigger onFocus={() => handleSteps(6)}>6. Verify Key</AccordionTrigger>
         <AccordionContent>
             <p>use the command of button to verify the key we just got back in the last step. Feel free to do this step a few times. This will give you a few more points on the fancy chart later on. </p>
             <p>Example</p>
@@ -204,10 +205,12 @@ export default function KeyPlayground(props: props) {
 }`} />
 <p>Seems like your key is still active and can be used by the user. </p>
 <p>One more step and will crush your non paying users dreams and Revoke his key 😊</p>
+<Button
+            onClick={() => handleSteps(6)} variant={"outline"} >Test</Button>
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="step-7">
-        <AccordionTrigger onFocus={() => router.push(pathname + '?' + createQueryString('step', '7'))}>7. Show Analytics</AccordionTrigger>
+        <AccordionTrigger onFocus={() => handleSteps(7)}>7. Show Analytics</AccordionTrigger>
         <AccordionContent>
             <p>Next we can get some analytics data on this key. This can also be done based on apiId or ownerId. But here we will keep it simple</p>
             <p>Example</p>
@@ -225,10 +228,12 @@ export default function KeyPlayground(props: props) {
         }
     ]
 }`} />
+<Button
+            onClick={() => handleSteps(7)} variant={"outline"} >Test</Button>
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="step-8">
-        <AccordionTrigger onFocus={() => router.push(pathname + '?' + createQueryString('step', '8'))}>8. Revoke Key</AccordionTrigger>
+        <AccordionTrigger onFocus={() => handleSteps(8)}>8. Revoke Key</AccordionTrigger>
         <AccordionContent><p>Lets say for whatever reason you want to revoke access to a key. This can be done using the same updateKey endpoint we have used before. Only this time we will set enabled to false. This will make sure that if the key is used to verify a user it will return <span>UNAUTHORIZED</span>. </p>
             <p>Example</p>
             <CodeComponent val={`curl --request POST \
@@ -239,10 +244,12 @@ export default function KeyPlayground(props: props) {
   "enabled": false,
 }'`} />
 <p>Example</p>
-<CodeComponent val={`{}`} /></AccordionContent>
+<CodeComponent val={`{}`} />
+<Button
+            onClick={() => handleSteps(8)} variant={"outline"} >Test</Button></AccordionContent>
       </AccordionItem>
       <AccordionItem value="step-9">
-        <AccordionTrigger onFocus={() => router.push(pathname + '?' + createQueryString('step', '9'))}>9. Verify Key Invalid</AccordionTrigger>
+        <AccordionTrigger onFocus={() => handleSteps(9)}>9. Verify Key Invalid</AccordionTrigger>
         <AccordionContent>
             <p>For the last time I promise, we verify our key.</p>
             <p>Example</p>
@@ -260,11 +267,15 @@ export default function KeyPlayground(props: props) {
 }`} />
 <p>Seems like your key is still active and can be used by the user. </p>
 <p>One more step and will crush your non paying users dreams and Revoke his key 😊</p>
+<Button
+            onClick={() => handleSteps(9)} variant={"outline"} >Test</Button>
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="step-10">
-        <AccordionTrigger onFocus={() => router.push(pathname + '?' + createQueryString('step', '10'))}>Sign Up</AccordionTrigger>
-        <AccordionContent><p>Now that you've seen all that our platform has to offer, don't wait any longer. Sign up today and elevate your user management experience!</p></AccordionContent>
+        <AccordionTrigger onFocus={() => handleSteps(10)}>Sign Up</AccordionTrigger>
+        <AccordionContent><p>Now that you have seen some of what our platform has to offer. Sign up today and elevate your user management experience!</p>
+        <Button
+            onClick={() => handleSteps(10)} variant={"outline"} >Test</Button></AccordionContent>
       </AccordionItem>
     </Accordion>
   );
