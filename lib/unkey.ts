@@ -1,5 +1,6 @@
 import { Unkey } from "@unkey/api";
-const rootKey = process.env.NEXT_PUBLIC_UNKEY_ROOT_KEY;
+const rootKey = process.env.UNKEY_ROOT_KEY;
+
 //Create Key
 export async function CreateKeyCommand(apiId: string) {
   
@@ -14,8 +15,6 @@ export async function CreateKeyCommand(apiId: string) {
     enabled: true,
   });
   if (error) {
-    // handle potential network or bad request error
-    // a link to our docs will be in the `error.docs` field
     console.error(error.message);
     return { key: null, keyId: null, error: error.message };
   }
@@ -26,6 +25,7 @@ export async function CreateKeyCommand(apiId: string) {
   }
   return { key: result.key, keyId: result.keyId };
 }
+
 //Verify Key
 export async function VerifyKeyCommand(key: string, apiId: string) {
   if (!rootKey) {
@@ -59,10 +59,10 @@ export async function GetKeyCommand(command: string) {
   const { result, error } = await unkey.keys.get({ keyId: command });
   if (error) {
     console.error(error.message);
-    return;
+    return error;
   }
   if (!result) {
-    return;
+    return {};
   }
   return result;
 }

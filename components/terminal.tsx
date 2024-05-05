@@ -1,41 +1,47 @@
-"use client";
+
 
 import React, { useState, useContext, useEffect } from "react";
 import { ReactTerminal, TerminalContext } from "react-terminal";
-
 import { CreateKeyCommand, VerifyKeyCommand, GetKeyCommand } from "@/lib/unkey";
 import { Button } from "./ui/button";
-
-function Terminal(props: { current: string, data: any, sendKey: {key:string, keyId:string}, step: number, setData: (input:string) => void}) {
-  const [keyObject, setKeyObject] = React.useState({ key: "", keyId: "" });
+import curl2Json from "@bany/curl-to-json";
+import { NextResponse } from "next/server";
+function Terminal(props: {
+  data: any;
+  sendKey: { key: string; keyId: string };
+  step: number;
+  setData: (input: string) => void;
+}) {
+  const [keyObject, setKeyObject] = React.useState(props.sendKey);
   const data = props.data;
   const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
-  const [currentTerminal, setCurrentTerminal] = useState(props.current);
-  const { setBufferedContent, setTemporaryContent } = useContext(TerminalContext);
+  const { setBufferedContent, setTemporaryContent } =
+    useContext(TerminalContext);
   const [theme, setTheme] = useState("dark");
   const [controlBar, setControlBar] = useState(false);
   const [controlButtons, setControlButtons] = useState(false);
   const [prompt, setPrompt] = useState(">>>");
   const step = props.step;
+  const urls = {
+    createKey: 'https://api.unkey.dev/v1/keys.createKey',
+    getkey: 'https://api.unkey.dev/v1/keys.getKey',
+    verifyKey: 'https://api.unkey.dev/v1/keys.verifyKey',
+    updateKey: 'https://api.unkey.dev/v1/keys.updateKey',
+    getVerifications: 'https://api.unkey.dev/v1/keys.getVerifications',
+  };
 
 
+    
   useEffect(() => {
     console.log("Terminal", step);
-    console.log("Terminal", data[step - 1].curlInput) ;
-    console.log("Terminal", data[step - 1].curlInput);
-    
+    console.log("Terminal", data['step1'].curlInput);
+    console.log("Terminal", data['step1'].curlInput);
   }, [step, data]);
-  
+
   if (!apiId) {
     return <div>Api id not found</div>;
   }
 
-  function parseCommand(command: string) {
-    const parts = command.split(" ");
-    const cmd = parts[0];
-    const args = parts.slice(1);
-
-  }
 
   const commands = {
     help: (
@@ -134,80 +140,59 @@ function Terminal(props: { current: string, data: any, sendKey: {key:string, key
       );
     },
 
-    curl: async (url: any) => {
-      data[step - 1].curlInput = url;
-      console.log(data);
+    curl: async (curl:any) => {
       
-    },
+      const req = curl2Json(curl);
+      //console.log(req);
+      
+      const body = JSON.stringify(req.data);
+      const keyId = req.params?.keyId;
+      //console.log("Body", body);
+      let url = req.url;
+      const method = req.method;
+      switch (url) {
+        case urls.createKey:
+          url = '/api/createKey';
+          break;
+        case urls.getkey:
+          url = `/api/getKey?keyId=${keyId}`;
+          break;
+        case urls.verifyKey:
+          url = '/api/verifyKey';
+          break;
+        case urls.updateKey:
+          url = '/api/updateKey';
+          break;
+        case urls.getVerifications:
+          url = '/api/getVerifications';
+          break;
+        default:
+      }
+      console.log("URL", url, "Method", method, "params", curl.params, "body", body, "keyId", keyId, "req", curl.data);
+      
+      const res = await fetch(url);
+      // if(res.ok) {
+      //   setKeyObject(await res.json());
+      //   return (<span>`${JSON.stringify(res.json)}`</span>);
+      // }
+      if(res.ok) {
+        return res.json();
+        
+      }
+      return (<span>error</span>);
+    }
+    
   };
-  if (!apiId) {
-    return <div>Api id not found</div>;
-  }
-
   const welcomeMessage = (
     <span>
       Type &quot;help&quot; for all available commands. <br />
     </span>
   );
 
-  async function createKeyTest() {
-    if (!apiId) {
-      return <div>Api id not found</div>;
-    }
-    const result = await CreateKeyCommand(apiId);
-    if (!result.error && result.key && result.keyId) {
-      setKeyObject(result);
-    }
-  }
 
-  async function verifyKeyTest() {
-    if (!keyObject.key || !apiId) {
-      return <div>Api id not found</div>;
-    }
-    const result = await VerifyKeyCommand(keyObject.key, apiId);
-    if (result) {
-    }
-  }
-  async function setCommand() {
-    // setTemporaryContent(`Working...`);
-    //   await setTimeout(() => {
-    //     setBufferedContent((previous) => (
-    //       <>
-    //         {previous}
-    //         <br />
-    //         <span>curl --request POST --url https://api.unkey.dev/v1/keys.createKey --header </span>
-    //         <br />
-    //       </>
-    //     ));
-    //   }, 3000);
-    setTemporaryContent("Waiting...");
-    await setTemporaryContent("Waiting...");
 
-    return <br />;
-  }
-  // wait: async (timeout: any) => {
-  //   setTemporaryContent("Waiting...");
-  //   await new Promise((resolve) =>
-  //     setTimeout(() => {
-  //       resolve(void 0);
-  //     }, parseInt(timeout) * 1000)
-  //   );
-  //   return "Over!";
-  // },
   return (
     <div className="h-[1000px]">
-      <Button className="my-6"
-        onClick={() =>
-          parseCommand(
-            `curl --request POST --url https://api.unkey.dev/v1/keys.createKey --header 'Authorization: Bearer <token>' --header 'Content-Type: application/json' --data '{"apiId": "api_1234"}'`
-          )
-        }
-      >
-        Parse Command
-      </Button>
-      <Button onClick={() => createKeyTest()}>Create Key</Button>
-      <Button onClick={() => verifyKeyTest()}>Verify Key</Button>
-      <Button onClick={() => setCommand()}>Set Command</Button>
       <p className="my-6"></p>
       <ReactTerminal
         setTemporaryContent={() => setTemporaryContent("Working...")}

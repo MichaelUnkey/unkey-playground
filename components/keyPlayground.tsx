@@ -8,20 +8,22 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "./ui/button";
 import { useCallback, useState } from "react";
+import { string } from "zod";
 
 type props = {
   className?: string;
   step?: number;
-  
   setInput: () => void;
-  currentTerminal: string;
-  data: Array<{
-    step: number;
-    curlCommand: string;
-    curlInput: string;
-    curlResponse: string;
-    complete: boolean;
-  }>;
+  data: {
+    [key: string]: {
+      step: number;
+      name: string;
+      curlCommand: string;
+      curlInput: string;
+      curlResponse: string;
+      complete: boolean;
+    };
+  };
 };
 
 export default function KeyPlayground(props: props) {
@@ -31,14 +33,14 @@ export default function KeyPlayground(props: props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const setInput = props.setInput;
-
+  const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
   function handleSteps(step: number) {
     router.push(pathname + "?" + createQueryString("step", step.toString()));
   }
 
-  function handleInput(){
+  function handleInput() {
     console.log("Called handleInput");
-    
+
     setInput();
   }
 
@@ -74,15 +76,15 @@ export default function KeyPlayground(props: props) {
               are both required. For now we can use some fake values. In the
               terminal window paste or type the following curl command.
             </p>
+           
             <p>Example</p>
+            <p>{`Replace the <apiId> with: ${apiId}`}</p>
             <p>{`Leave the <token> tag for now. This is normally where you would put your root key. For now we will handle this for you. Everything else you can input youself.`}</p>
-            <CodeComponent
-              val={data[0]?.curlCommand ? data[0]?.curlCommand : ``}
-            />
-            {data[0]?.curlResponse ? (
-              <CodeComponent val={data[0]?.curlResponse} />
+            <CodeComponent val={data.step1.curlCommand ?? ""} />
+            {data['step1']?.curlResponse ? (
+              <CodeComponent val={data['step1']?.curlResponse} />
             ) : null}
-            {data[0]?.complete ? null : (
+            {data['step1']?.complete ? null : (
               <div className="flex justify-end">
                 <Button
                   className="lg:w-1/4"

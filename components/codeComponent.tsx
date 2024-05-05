@@ -1,6 +1,6 @@
 "use client"
 import React from "react"; 
-import { CodeBlock,dracula, CopyBlock } from "react-code-blocks"; 
+import { dracula, CopyBlock } from "react-code-blocks"; 
   
 export default function CodeComponent(props: { val: string }) { 
   return ( 
