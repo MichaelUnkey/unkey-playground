@@ -9,7 +9,7 @@ type Props = {
     className?: string;
 };
 
-export const AutoTyper: React.FC<React.PropsWithRef<Props>> = ({  sequence, wrapper, cursor, style, repeat, className } ) => {
+export const AutoTyper: React.FC<React.PropsWithRef<Props>> = ({  sequence, wrapper, cursor, repeat, className } ) => {
     return (
         <TypeAnimation
             sequence={sequence || ["Hello, World!"]}

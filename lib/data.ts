@@ -1,4 +1,4 @@
-export const data = () => {
+export async function StepData() {
   return {
     step1: {
       step: 1,
@@ -12,7 +12,7 @@ export const data = () => {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false,
+      complete: false
     },
     step2: {
       step: 2,
@@ -22,7 +22,7 @@ export const data = () => {
      --header 'Authorization: Bearer <token>'`,
       curlInput: "",
       curlResponse: "",
-      complete: false,
+      complete: false
     },
     step3: {
       step: 3,
@@ -36,7 +36,7 @@ export const data = () => {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false,
+      complete: false
     },
     step4: {
       step: 4,
@@ -52,7 +52,7 @@ export const data = () => {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false,
+      complete: false
     },
     step5: {
       step: 5,
@@ -67,7 +67,7 @@ export const data = () => {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false,
+      complete: false
     },
     step6: {
       step: 6,
@@ -81,7 +81,7 @@ export const data = () => {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false,
+      complete: false
     },
 
     step7: {
@@ -97,7 +97,7 @@ export const data = () => {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false,
+      complete: false
     },
     step8: {
       step: 8,
@@ -111,7 +111,7 @@ export const data = () => {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false,
+      complete: false
     },
     step9: {
       step: 9,
@@ -119,7 +119,7 @@ export const data = () => {
       curlCommand: ``,
       curlInput: "",
       curlResponse: "",
-      complete: false,
-    },
+      complete: false
+    }
   };
 };

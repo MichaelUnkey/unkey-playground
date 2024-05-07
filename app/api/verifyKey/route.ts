@@ -1,4 +1,3 @@
-import * as curlconverter from 'curlconverter';
 import { NextRequest, NextResponse } from 'next/server';
 import { CreateKeyCommand, VerifyKeyCommand, GetKeyCommand } from "@/lib/unkey";
 export const dynamic = 'force-dynamic' // defaults to auto
@@ -7,7 +6,6 @@ export const dynamic = 'force-dynamic' // defaults to auto
 
 export async function POST(req:NextRequest) {
 
-  console.log("Things got called");
   return NextResponse.json(
     {
       success: true,
@@ -19,7 +17,6 @@ export async function POST(req:NextRequest) {
 }
 
 // export async function POST(req:NextApiRequest) {
-//   console.log("Things got called");
   
 //     const createkey = CreateKeyCommand;
     

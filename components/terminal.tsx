@@ -1,19 +1,24 @@
-
-
+"use client";
 import React, { useState, useContext, useEffect } from "react";
 import { ReactTerminal, TerminalContext } from "react-terminal";
-import { CreateKeyCommand, VerifyKeyCommand, GetKeyCommand } from "@/lib/unkey";
-import { Button } from "./ui/button";
+import { usePathname, useSearchParams } from "next/navigation";
 import curl2Json from "@bany/curl-to-json";
-import { NextResponse } from "next/server";
+
 function Terminal(props: {
   data: any;
+  command: string;
   sendKey: { key: string; keyId: string };
-  step: number;
+  step: string;
   setData: (input: string) => void;
+  isCommandSent: boolean;
+  inputFromTerminal: (isDone: boolean) => void;
 }) {
+  const searchParams = useSearchParams();
+  const [isFirstLoad, setIsFirstLoad] = React.useState(true);
+  const [command, setCommand] = React.useState(props.command);
   const [keyObject, setKeyObject] = React.useState(props.sendKey);
-  const data = props.data;
+  const [inputTerminal, setInputTerminal] = React.useState<boolean>(props.isCommandSent);
+  const [stepsData, setStepsData] = React.useState(props.data);
   const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
   const { setBufferedContent, setTemporaryContent } =
     useContext(TerminalContext);
@@ -21,27 +26,22 @@ function Terminal(props: {
   const [controlBar, setControlBar] = useState(false);
   const [controlButtons, setControlButtons] = useState(false);
   const [prompt, setPrompt] = useState(">>>");
-  const step = props.step;
+  const step = searchParams.get("step");
   const urls = {
-    createKey: 'https://api.unkey.dev/v1/keys.createKey',
-    getkey: 'https://api.unkey.dev/v1/keys.getKey',
-    verifyKey: 'https://api.unkey.dev/v1/keys.verifyKey',
-    updateKey: 'https://api.unkey.dev/v1/keys.updateKey',
-    getVerifications: 'https://api.unkey.dev/v1/keys.getVerifications',
+    createKey: "https://api.unkey.dev/v1/keys.createKey",
+    getkey: "https://api.unkey.dev/v1/keys.getKey",
+    verifyKey: "https://api.unkey.dev/v1/keys.verifyKey",
+    updateKey: "https://api.unkey.dev/v1/keys.updateKey",
+    getVerifications: "https://api.unkey.dev/v1/keys.getVerifications",
   };
-
-
-    
-  useEffect(() => {
-    console.log("Terminal", step);
-    console.log("Terminal", data['step1'].curlInput);
-    console.log("Terminal", data['step1'].curlInput);
-  }, [step, data]);
+  
 
   if (!apiId) {
     return <div>Api id not found</div>;
   }
-
+  if (isFirstLoad) {
+    return <div>Loading...</div>;
+  }
 
   const commands = {
     help: (
@@ -116,8 +116,6 @@ function Terminal(props: {
         new Array(nb).fill({}).map(
           (value, index) =>
             new Promise((resolve) => {
-              //console.log(value);
-
               const timer = setTimeout(() => {
                 setBufferedContent((previous) => (
                   <>
@@ -139,63 +137,96 @@ function Terminal(props: {
         </>
       );
     },
-
-    curl: async (curl:any) => {
-      
+    test: async (args: any) => {
+      setBufferedContent((previous) => (
+        <>
+          {previous}
+          <span>Buffered</span>
+          {<br />}
+        </>
+      ));
+    },
+    curl: async (curl: any) => {
       const req = curl2Json(curl);
-      //console.log(req);
-      
+
       const body = JSON.stringify(req.data);
       const keyId = req.params?.keyId;
-      //console.log("Body", body);
       let url = req.url;
       const method = req.method;
       switch (url) {
         case urls.createKey:
-          url = '/api/createKey';
+          url = "/api/createKey";
           break;
         case urls.getkey:
           url = `/api/getKey?keyId=${keyId}`;
           break;
         case urls.verifyKey:
-          url = '/api/verifyKey';
+          url = "/api/verifyKey";
           break;
         case urls.updateKey:
-          url = '/api/updateKey';
+          url = "/api/updateKey";
           break;
         case urls.getVerifications:
-          url = '/api/getVerifications';
+          url = "/api/getVerifications";
           break;
         default:
       }
-      console.log("URL", url, "Method", method, "params", curl.params, "body", body, "keyId", keyId, "req", curl.data);
-      
+
       const res = await fetch(url);
-      // if(res.ok) {
-      //   setKeyObject(await res.json());
-      //   return (<span>`${JSON.stringify(res.json)}`</span>);
-      // }
-      if(res.ok) {
-        return res.json();
-        
+      if (res.ok) {
+        setKeyObject(await res.json());
+        return <span>`${JSON.stringify(res.json)}`</span>;
       }
-      return (<span>error</span>);
-    }
-    
+      if (res) {
+        return res;
+      }
+      return <span>error</span>;
+    },
   };
   const welcomeMessage = (
     <span>
       Type &quot;help&quot; for all available commands. <br />
     </span>
   );
-
-
+  async function test() {
+    await setBufferedContent((previous) => (
+      <>
+        {previous}
+        <span>Buffered Test</span>
+        {<br />}
+      </>
+    ));
+  }
+  useEffect(() => {
+    console.log("input terminal", inputTerminal);
+    if (isFirstLoad) {
+      setStepsData(props.data);
+      setIsFirstLoad(false);
+      console.log("Terminal first load", isFirstLoad);
+    }
+    if (inputTerminal && !isFirstLoad) {
+      setBufferedContent((previous) => (
+        <>
+          {previous}
+          <span>{command}</span>
+          {<br />}
+        </>
+      ));
+      props.inputFromTerminal(false);
+      setCommand("");
+      setInputTerminal(false);
+    }
+  }, [inputTerminal, command]);
 
   return (
     <div className="h-[1000px]">
       <p className="my-6"></p>
+      <button onClick={test}>Test</button>
       <ReactTerminal
-        setTemporaryContent={() => setTemporaryContent("Working...")}
+        //setTemporaryContent={() => setTemporaryContent("Working...")}
+
+        setTemporaryContent={"Temporary"}
+        setInput={"Input"}
         prompt={prompt}
         theme={theme}
         showControlBar={controlBar}

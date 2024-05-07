@@ -7,14 +7,15 @@ import {
 } from "./ui/accordion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "./ui/button";
-import { useCallback, useState } from "react";
-import { string } from "zod";
+import { use, useCallback, useEffect, useMemo, useState } from "react";
+import { send } from "process";
 
 type props = {
   className?: string;
-  step?: number;
-  setInput: () => void;
-  data: {
+  inputTerminal: boolean;
+  terminalCurlInput: string;
+  inputFromPlayground: (input: boolean) => void;
+  stepsData: {
     [key: string]: {
       step: number;
       name: string;
@@ -27,28 +28,48 @@ type props = {
 };
 
 export default function KeyPlayground(props: props) {
+  const [stepsData, setStepsData] = useState<any>();
   const className = props.className;
-  const data = props.data;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const setInput = props.setInput;
   const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
+  const [sendingData, setSendingData] = useState(false);
+  const inputFromPlayground = props.inputFromPlayground;
+
+  useEffect(() => {
+    getData();
+  }, [props.stepsData]);
+
+  useEffect(() => {
+    if (sendingData) {
+      inputFromPlayground(true);
+      console.log("input from playground sent to page", sendingData);
+    }
+  }, [sendingData]);
+
   function handleSteps(step: number) {
     router.push(pathname + "?" + createQueryString("step", step.toString()));
   }
 
   function handleInput() {
-    console.log("Called handleInput");
-
-    setInput();
+    //console.log("input from playground handler", sendingData);
+    if (!sendingData) {
+      console.log("input from playground sent to page", sendingData);
+      setSendingData(true);
+      inputFromPlayground(true);
+    }
   }
+  async function getData() {
+    const data = props.stepsData;
+    console.log("data", data);
 
+    setStepsData(data);
+  }
   const createQueryString = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.set(name, value);
-
       return params.toString();
     },
     [searchParams]
@@ -76,15 +97,19 @@ export default function KeyPlayground(props: props) {
               are both required. For now we can use some fake values. In the
               terminal window paste or type the following curl command.
             </p>
-           
-            <p>Example</p>
+
             <p>{`Replace the <apiId> with: ${apiId}`}</p>
             <p>{`Leave the <token> tag for now. This is normally where you would put your root key. For now we will handle this for you. Everything else you can input youself.`}</p>
-            <CodeComponent val={data.step1.curlCommand ?? ""} />
-            {data['step1']?.curlResponse ? (
-              <CodeComponent val={data['step1']?.curlResponse} />
+            <p>Example</p>
+            <CodeComponent
+              val={stepsData ? stepsData["step1"]?.curlCommand : ""}
+            />
+            {stepsData ? (
+              <CodeComponent
+                val={stepsData ? stepsData["step1"]?.curlResponse : ""}
+              />
             ) : null}
-            {data['step1']?.complete ? null : (
+            {
               <div className="flex justify-end">
                 <Button
                   className="lg:w-1/4"
@@ -94,7 +119,7 @@ export default function KeyPlayground(props: props) {
                   Do it for me
                 </Button>
               </div>
-            )}
+            }
           </div>
         </AccordionContent>
       </AccordionItem>

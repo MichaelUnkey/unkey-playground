@@ -1,5 +1,4 @@
-"use client"
-import React from "react"; 
+
 import { dracula, CopyBlock } from "react-code-blocks"; 
   
 export default function CodeComponent(props: { val: string }) { 
@@ -12,6 +11,7 @@ export default function CodeComponent(props: { val: string }) {
       showLineNumbers={true} 
       theme={dracula}
       wrapLongLines={false}
+      codeBlock={true}
     /> 
     </div> 
   ); 
