@@ -7,14 +7,15 @@ import {
 } from "./ui/accordion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "./ui/button";
-import { use, useCallback, useEffect, useMemo, useState } from "react";
-import { send } from "process";
+import { useCallback, useEffect, useState } from "react";
+import { StepData } from "@/lib/data";
 
 type props = {
   className?: string;
   inputTerminal: boolean;
   terminalCurlInput: string;
-  inputFromPlayground: (input: boolean) => void;
+  step: string;
+  isCurlTrigger: (input: boolean) => void;
   stepsData: {
     [key: string]: {
       step: number;
@@ -29,13 +30,14 @@ type props = {
 
 export default function KeyPlayground(props: props) {
   const [stepsData, setStepsData] = useState<any>();
-  const className = props.className;
+  const [step, setStep] = useState<number>(1);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
   const [sendingData, setSendingData] = useState(false);
-  const inputFromPlayground = props.inputFromPlayground;
+  //Trigger from button to use Curl from data
+  const setCurlTrigger = props.isCurlTrigger;
 
   useEffect(() => {
     getData();
@@ -43,8 +45,8 @@ export default function KeyPlayground(props: props) {
 
   useEffect(() => {
     if (sendingData) {
-      inputFromPlayground(true);
-      console.log("input from playground sent to page", sendingData);
+      setCurlTrigger(sendingData);
+      console.log("Sending Data Was changed", sendingData);
     }
   }, [sendingData]);
 
@@ -52,18 +54,13 @@ export default function KeyPlayground(props: props) {
     router.push(pathname + "?" + createQueryString("step", step.toString()));
   }
 
-  function handleInput() {
-    //console.log("input from playground handler", sendingData);
+  function handleClick() {
     if (!sendingData) {
-      console.log("input from playground sent to page", sendingData);
       setSendingData(true);
-      inputFromPlayground(true);
     }
   }
   async function getData() {
     const data = props.stepsData;
-    console.log("data", data);
-
     setStepsData(data);
   }
   const createQueryString = useCallback(
@@ -113,7 +110,7 @@ export default function KeyPlayground(props: props) {
               <div className="flex justify-end">
                 <Button
                   className="lg:w-1/4"
-                  onClick={() => handleInput()}
+                  onClick={() => handleClick()}
                   variant={"outline"}
                 >
                   Do it for me

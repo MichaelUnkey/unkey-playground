@@ -1,19 +1,18 @@
 "use client";
 import Terminal from "../components/terminal";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import KeyPlayground from "@/components/keyPlayground";
 import { TerminalContextProvider } from "react-terminal";
-import { usePathname, useSearchParams } from "next/navigation";
+//import { usePathname, useSearchParams } from "next/navigation";
 
 import curl2Json from "@bany/curl-to-json";
 
 export default function Home() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+
   const [stepsData, setStepsData] = useState<any>();
   const [loading, setLoading] = useState(true);
   const [terminalCurlInput, setTerminalCurlInput] = useState<string>("");
-  const [inputTerminal, setInputTerminal] = useState<boolean>(false);
+  const [useCurl, setUseCurl] = useState<boolean>(false);
   const [step, setStep] = useState<string>(`step${1}`);
   const [key, setKey] = useState({
     keyId: "",
@@ -25,7 +24,10 @@ export default function Home() {
     keyName: string;
   };
   
-  
+  useEffect(() => {
+    console.log("useCurl", useCurl);
+    
+  }, [useCurl]);
   // const data = ;
   // useMemo(() => {
   //   data.then((res) => {
@@ -49,23 +51,20 @@ export default function Home() {
         setLoading(false)
       })
   }, [])
-  function handleInput() {
-    setInputTerminal(true);
-    console.log("input terminal", inputTerminal);
-  }
-  function handleInputPlayground(input: boolean) {
-    setInputTerminal(input);
-    console.log("inputTerminal Var on page", inputTerminal);
+  
+  function handleUseCurlTrigger(input: boolean) {
+    setUseCurl(input);
+    //console.log("inputTerminal Var on page", useCurl);
     const command = stepsData[step].curlCommand;
-    console.log("command",command);
+    //console.log("command",command);
     setTerminalCurlInput(command);
-    console.log("input Page", inputTerminal);
+    //console.log("input Page", inputTerminal);
   }
   function handleTerminalCurl(input: string) {
     setTerminalCurlInput(input);
-    console.log("input terminal", inputTerminal);
+    //console.log("input terminal", inputTerminal);
     const json = curl2Json(input);
-    console.log("json", json);
+    //console.log("json", json);
   }
 
   if (loading) return <p>Loading...</p>
@@ -80,10 +79,11 @@ export default function Home() {
           <div className="flex flex-col w-1/2 h-full overflow-hidden scroll-smooth">
             <KeyPlayground
               className=""
-              inputTerminal={inputTerminal}
+              step={step}
+              inputTerminal={useCurl}
               terminalCurlInput={terminalCurlInput}
-              inputFromPlayground={(input: boolean) =>
-                handleInputPlayground(input)
+              isCurlTrigger={(input: boolean) =>
+                handleUseCurlTrigger(input)
               }
               stepsData={stepsData}
             />
@@ -97,9 +97,9 @@ export default function Home() {
                 sendKey={key}
                 step={step}
                 setData={(input: string) => handleTerminalCurl(input)}
-                isCommandSent={inputTerminal}
-                inputFromTerminal={(isDone: boolean) =>
-                  setInputTerminal(isDone)
+                useCurl={useCurl}
+                resetInput={(isDone: boolean) =>
+                  setUseCurl(isDone)
                 }
               />
             </TerminalContextProvider>

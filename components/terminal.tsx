@@ -10,14 +10,14 @@ function Terminal(props: {
   sendKey: { key: string; keyId: string };
   step: string;
   setData: (input: string) => void;
-  isCommandSent: boolean;
-  inputFromTerminal: (isDone: boolean) => void;
+  useCurl: boolean;
+  resetInput: (isDone: boolean) => void;
 }) {
   const searchParams = useSearchParams();
   const [isFirstLoad, setIsFirstLoad] = React.useState(true);
   const [command, setCommand] = React.useState(props.command);
   const [keyObject, setKeyObject] = React.useState(props.sendKey);
-  const [inputTerminal, setInputTerminal] = React.useState<boolean>(props.isCommandSent);
+  const [isCommand, setIsCommand] = React.useState<boolean>(props.useCurl);
   const [stepsData, setStepsData] = React.useState(props.data);
   const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
   const { setBufferedContent, setTemporaryContent } =
@@ -26,7 +26,12 @@ function Terminal(props: {
   const [controlBar, setControlBar] = useState(false);
   const [controlButtons, setControlButtons] = useState(false);
   const [prompt, setPrompt] = useState(">>>");
-  const step = searchParams.get("step");
+  //console.log("Terminal Input", inputTerminal);
+  
+  useEffect(() => {
+    console.log("Terminal input changed", isCommand);
+    
+  }, [isCommand, command]);
   const urls = {
     createKey: "https://api.unkey.dev/v1/keys.createKey",
     getkey: "https://api.unkey.dev/v1/keys.getKey",
@@ -39,9 +44,7 @@ function Terminal(props: {
   if (!apiId) {
     return <div>Api id not found</div>;
   }
-  if (isFirstLoad) {
-    return <div>Loading...</div>;
-  }
+
 
   const commands = {
     help: (
@@ -148,11 +151,8 @@ function Terminal(props: {
     },
     curl: async (curl: any) => {
       const req = curl2Json(curl);
-
-      const body = JSON.stringify(req.data);
       const keyId = req.params?.keyId;
       let url = req.url;
-      const method = req.method;
       switch (url) {
         case urls.createKey:
           url = "/api/createKey";
@@ -198,13 +198,15 @@ function Terminal(props: {
     ));
   }
   useEffect(() => {
-    console.log("input terminal", inputTerminal);
+    //console.log("input terminal", inputTerminal);
     if (isFirstLoad) {
       setStepsData(props.data);
       setIsFirstLoad(false);
       console.log("Terminal first load", isFirstLoad);
     }
-    if (inputTerminal && !isFirstLoad) {
+    if (setIsCommand && !isFirstLoad) {
+      //console.log("Terminal inputTerminal changed !isfirstload", inputTerminal);
+      
       setBufferedContent((previous) => (
         <>
           {previous}
@@ -212,20 +214,17 @@ function Terminal(props: {
           {<br />}
         </>
       ));
-      props.inputFromTerminal(false);
+      props.resetInput(false);
       setCommand("");
-      setInputTerminal(false);
+      setIsCommand(false);
     }
-  }, [inputTerminal, command]);
+  }, [isCommand, command]);
 
   return (
     <div className="h-[1000px]">
       <p className="my-6"></p>
       <button onClick={test}>Test</button>
       <ReactTerminal
-        //setTemporaryContent={() => setTemporaryContent("Working...")}
-
-        setTemporaryContent={"Temporary"}
         setInput={"Input"}
         prompt={prompt}
         theme={theme}
