@@ -1,5 +1,101 @@
-export async function StepData() {
+export type StepDataType = {
+  shared: {
+    apiId: string;
+    key: string;
+    keyId: string;
+  };
+  step1: {
+    step: number;
+    name: string;
+    curlCommand: string;
+    curlInput: string;
+    curlResponse: string;
+    curlSent: boolean;
+    curlComplete: boolean;
+  };
+  step2: {
+    step: number;
+    name: string;
+    curlCommand: string;
+    curlInput: string;
+    curlResponse: string;
+    curlSent: boolean;
+    curlComplete: boolean;
+  };
+  step3: {
+    step: number;
+    name: string;
+    curlCommand: string;
+    curlInput: string;
+    curlResponse: string;
+    curlSent: boolean;
+    curlComplete: boolean;
+  };
+  step4: {
+    step: number;
+    name: string;
+    curlCommand: string;
+    curlInput: string;
+    curlResponse: string;
+    curlSent: boolean;
+    curlComplete: boolean;
+  };
+  step5: {
+    step: number;
+    name: string;
+    curlCommand: string;
+    curlInput: string;
+    curlResponse: string;
+    curlSent: boolean;
+    curlComplete: boolean;
+  };
+  step6: {
+    step: number;
+    name: string;
+    curlCommand: string;
+    curlInput: string;
+    curlResponse: string;
+    curlSent: boolean;
+    curlComplete: boolean;
+  };
+  step7: {
+    step: number;
+    name: string;
+    curlCommand: string;
+    curlInput: string;
+    curlResponse: string;
+    curlSent: boolean;
+    curlComplete: boolean;
+  };
+  step8: {
+    step: number;
+    name: string;
+    curlCommand: string;
+    curlInput: string;
+    curlResponse: string;
+    curlSent: boolean;
+    curlComplete: boolean;
+  };
+  step9: {
+    step: number;
+    name: string;
+    curlCommand: string;
+    curlInput: string;
+    curlResponse: string;
+    curlSent: boolean;
+    curlComplete: boolean;
+  };
+};
+
+
+export default async function StepData() {
   return {
+    shared: {
+      apiId:"",
+      key: "",
+      keyId: "",
+      
+    },
     step1: {
       step: 1,
       name: "Create Key",
@@ -12,7 +108,8 @@ export async function StepData() {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false
+      curlSent: false,
+      curlComplete: false
     },
     step2: {
       step: 2,
@@ -22,7 +119,8 @@ export async function StepData() {
      --header 'Authorization: Bearer <token>'`,
       curlInput: "",
       curlResponse: "",
-      complete: false
+      curlSent: false,
+      curlComplete: false
     },
     step3: {
       step: 3,
@@ -36,7 +134,8 @@ export async function StepData() {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false
+      curlSent: false,
+      curlComplete: false
     },
     step4: {
       step: 4,
@@ -52,7 +151,8 @@ export async function StepData() {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false
+      curlSent: false,
+      curlComplete: false
     },
     step5: {
       step: 5,
@@ -67,7 +167,8 @@ export async function StepData() {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false
+      curlSent: false,
+      curlComplete: false
     },
     step6: {
       step: 6,
@@ -81,7 +182,8 @@ export async function StepData() {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false
+      curlSent: false,
+      curlComplete: false
     },
 
     step7: {
@@ -97,7 +199,8 @@ export async function StepData() {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false
+      curlSent: false,
+      curlComplete: false
     },
     step8: {
       step: 8,
@@ -111,7 +214,8 @@ export async function StepData() {
    }'`,
       curlInput: "",
       curlResponse: "",
-      complete: false
+      curlSent: false,
+      curlComplete: false
     },
     step9: {
       step: 9,
@@ -119,7 +223,9 @@ export async function StepData() {
       curlCommand: ``,
       curlInput: "",
       curlResponse: "",
-      complete: false
+      curlSent: false,
+      curlComplete: false
     }
   };
 };
+

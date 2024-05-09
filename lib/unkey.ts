@@ -1,5 +1,7 @@
+'use server'
 import { Unkey } from "@unkey/api";
 const rootKey = process.env.UNKEY_ROOT_KEY;
+//console.log("Root Key", rootKey);
 
 //Create Key
 export async function CreateKeyCommand(apiId: string) {
@@ -15,7 +17,7 @@ export async function CreateKeyCommand(apiId: string) {
     enabled: true,
   });
   if (error) {
-    console.error(error.message);
+    //console.error(error.message);
     return { key: null, keyId: null, error: error.message };
   }
 
@@ -40,7 +42,7 @@ export async function VerifyKeyCommand(key: string, apiId: string) {
   if (error) {
     // handle potential network or bad request error
     // a link to our docs will be in the `error.docs` field
-    console.error(error.message);
+    //console.error(error.message);
     return { key: null, keyId: null, error: error.message };
   }
 
@@ -58,7 +60,7 @@ export async function GetKeyCommand(command: string) {
   const unkey = new Unkey({ rootKey: rootKey });
   const { result, error } = await unkey.keys.get({ keyId: command });
   if (error) {
-    console.error(error.message);
+    //console.error(error.message);
     return error;
   }
   if (!result) {

@@ -1,54 +1,86 @@
 "use client";
 import React, { useState, useContext, useEffect } from "react";
 import { ReactTerminal, TerminalContext } from "react-terminal";
-import { usePathname, useSearchParams } from "next/navigation";
-import curl2Json from "@bany/curl-to-json";
+
+
 
 function Terminal(props: {
-  data: any;
-  command: string;
-  sendKey: { key: string; keyId: string };
-  step: string;
-  setData: (input: string) => void;
-  useCurl: boolean;
-  resetInput: (isDone: boolean) => void;
+  
+  sendRequest: (curl: string) => void;
+  response: string;
+  curlString: string;
+  apiId: string;
 }) {
-  const searchParams = useSearchParams();
-  const [isFirstLoad, setIsFirstLoad] = React.useState(true);
-  const [command, setCommand] = React.useState(props.command);
-  const [keyObject, setKeyObject] = React.useState(props.sendKey);
-  const [isCommand, setIsCommand] = React.useState<boolean>(props.useCurl);
-  const [stepsData, setStepsData] = React.useState(props.data);
-  const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
-  const { setBufferedContent, setTemporaryContent } =
-    useContext(TerminalContext);
+  //Terminal Setup
+  // const setTemporaryContent = useContext(TerminalContext).setTemporaryContent;
+  const { setBufferedContent, setTemporaryContent } = useContext(TerminalContext);
   const [theme, setTheme] = useState("dark");
   const [controlBar, setControlBar] = useState(false);
   const [controlButtons, setControlButtons] = useState(false);
   const [prompt, setPrompt] = useState(">>>");
-  //console.log("Terminal Input", inputTerminal);
-  
+  const [curl, setCurl] = useState(props.curlString);
+  const [response, setResponse] = useState(props.response);
+  const [apiId, setApiId] = useState(props.apiId);
+
   useEffect(() => {
-    console.log("Terminal input changed", isCommand);
+    if (props.curlString != "" && props.curlString != curl) {
+      setCurl(props.curlString);
+    }
+    if (!curl || curl == "") {
+      return;
+    }
+    if (curl) {
+      console.log("curl string", curl);
+      setCurlPlayground(curl);
+    }
+  }, [curl, props.curlString]);
+  useEffect(() => {
+    setResponse(props.response);
+    if (response === "") {
+      return;
+    }
+    if (response) {
+      //setResponsePlayground(response);
+      console.log("Response Terminal Side", response);
+    }
+  }, [response, props.response]);
+  // async function setResponsePlayground(response: string){
+  //   setPrompt(">>>");
+  //   setBufferedContent((previous) => (
+  //     <>
+  //       {previous}
+  //       <span>--------------------------</span>
+  //       <span>{response}</span>
+  //       {<br />}
+  //     </>
+  //   ));
+  //   setTemporaryContent("Processing...");
+  //   //setPrompt("Processing...");
+  // }
+  async function setCurlPlayground(curl: string) {
+    await commands.curl(curl);
+    setTemporaryContent("Processing...");
     
-  }, [isCommand, command]);
-  const urls = {
-    createKey: "https://api.unkey.dev/v1/keys.createKey",
-    getkey: "https://api.unkey.dev/v1/keys.getKey",
-    verifyKey: "https://api.unkey.dev/v1/keys.verifyKey",
-    updateKey: "https://api.unkey.dev/v1/keys.updateKey",
-    getVerifications: "https://api.unkey.dev/v1/keys.getVerifications",
-  };
-  
+    
+    //const test = commands.count_to(3);
 
-  if (!apiId) {
-    return <div>Api id not found</div>;
+    // setBufferedContent((previous) => (
+    //   <>
+    //     {previous}
+    //     <span>---------------------------------</span>
+    //     <br />
+    //     <span>{curl}</span>
+    //     {<br />}
+    //   </>
+    // ));
+    //setTemporaryContent("Processing...");
+    // setPrompt("Processing...");
   }
-
-
   const commands = {
     help: (
       <span>
+        <span>--------------------------</span>
+        <br />
         <strong>clear</strong> - clears the console. <br />
         <strong>change_prompt &lt;PROMPT&gt;</strong> - Change the prompt of the
         terminal. <br />
@@ -150,80 +182,46 @@ function Terminal(props: {
       ));
     },
     curl: async (curl: any) => {
-      const req = curl2Json(curl);
-      const keyId = req.params?.keyId;
-      let url = req.url;
-      switch (url) {
-        case urls.createKey:
-          url = "/api/createKey";
-          break;
-        case urls.getkey:
-          url = `/api/getKey?keyId=${keyId}`;
-          break;
-        case urls.verifyKey:
-          url = "/api/verifyKey";
-          break;
-        case urls.updateKey:
-          url = "/api/updateKey";
-          break;
-        case urls.getVerifications:
-          url = "/api/getVerifications";
-          break;
-        default:
-      }
+      setTemporaryContent("Processing...");
+      
+      const res = props.response;
+     
+      setBufferedContent((previous) => (
+        <>
+          {previous}
+          <span>{curl}</span>
+          {<br />}
+        </>
+      ));
+      setTimeout(() => {
+        setBufferedContent((previous) => (
+          <>
+            {previous}
+            <span>{res}</span>
+            {<br />}
+          </>
+        ));
+      }, 2 * 1000);
 
-      const res = await fetch(url);
-      if (res.ok) {
-        setKeyObject(await res.json());
-        return <span>`${JSON.stringify(res.json)}`</span>;
-      }
-      if (res) {
-        return res;
-      }
-      return <span>error</span>;
+      return (
+        <>
+          <br />
+          Finished
+        </>
+      );
     },
   };
+
   const welcomeMessage = (
     <span>
       Type &quot;help&quot; for all available commands. <br />
     </span>
   );
-  async function test() {
-    await setBufferedContent((previous) => (
-      <>
-        {previous}
-        <span>Buffered Test</span>
-        {<br />}
-      </>
-    ));
-  }
-  useEffect(() => {
-    //console.log("input terminal", inputTerminal);
-    if (isFirstLoad) {
-      setStepsData(props.data);
-      setIsFirstLoad(false);
-      console.log("Terminal first load", isFirstLoad);
-    }
-    if (setIsCommand && !isFirstLoad) {
-      //console.log("Terminal inputTerminal changed !isfirstload", inputTerminal);
-      
-      setBufferedContent((previous) => (
-        <>
-          {previous}
-          <span>{command}</span>
-          {<br />}
-        </>
-      ));
-      props.resetInput(false);
-      setCommand("");
-      setIsCommand(false);
-    }
-  }, [isCommand, command]);
 
   return (
     <div className="h-[1000px]">
-      <p className="my-6"></p>
-      <button onClick={test}>Test</button>
+      {/* <p className="my-6">{curl ?? "No Curl"}</p> */}
+      {/* <button onClick={setCurlFromPlayground(curl??"")}>Test</button> */}
       <ReactTerminal
         setInput={"Input"}
         prompt={prompt}
