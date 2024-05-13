@@ -52,19 +52,46 @@ export async function VerifyKeyCommand(key: string, apiId: string) {
   }
   return result;
 }
-
-export async function GetKeyCommand(command: string) {
+// Get Key
+export async function GetKeyCommand(keyId: string) {
   if (!rootKey) {
     return "'Root key not found'";
   }
   const unkey = new Unkey({ rootKey: rootKey });
-  const { result, error } = await unkey.keys.get({ keyId: command });
-  if (error) {
-    //console.error(error.message);
-    return error;
+  const { result, error } = await unkey.keys.get({keyId: keyId});
+
+  if(error){
+    return error.message;
   }
-  if (!result) {
-    return {};
+  
+  return result;
+}
+
+// Update Key
+export async function UpdateKeyCommand(
+  keyId: string, 
+  keyName: string | null,
+  ownerId: string,
+  metaData: {} | null,
+  expires: number | null, 
+  enabled: boolean,
+) {
+  if (!rootKey) {
+    return "'Root key not found'";
   }
+  const unkey = new Unkey({ rootKey: rootKey });
+  const { result, error } = await unkey.keys.update({
+    keyId: keyId, 
+    name: keyName, 
+    ownerId: ownerId, 
+    meta: metaData, 
+    expires: expires, 
+    enabled: enabled
+  });
+
+  if(error){
+    return error.message;
+  }
+  
   return result;
 }

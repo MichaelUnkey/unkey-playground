@@ -1,17 +1,11 @@
-import { NextResponse } from "next/server";
-import { StepData } from "@/lib/data";
-export async function GET(req: any, res: NextResponse) {
-    const getData = StepData;
-    try {
-        const dataObject = await getData();
-        //console.log("dataObject", dataObject);
-        return NextResponse.json(dataObject, { status: 201 });
-    } catch (error) {
-        return NextResponse.json({ error: "Error Step Data Not Found" }, { status: 500 });
-    }
- 
-  
-  
+import StepData from "@/lib/data";
 
- 
+export async function GET() {
+    try {
+        const data = await StepData();
+        //console.log("dataObject", dataObject);
+        return Response.json(data);
+    } catch (error) {
+        return  Response.json({error: "Error Step Data Not Found"}) ;
+    }
 }

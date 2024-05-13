@@ -12,58 +12,38 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "./ui/button";
 import { useCallback, useEffect, useState } from "react";
-import { GetData, GetUrlFromString, SwapValues, createKey } from "../lib/helper";
+import {
+  GetData,
+  GetUrlFromString,
+  HandleCurl,
+  SwapValues,
+} from "../lib/helper";
+import { GetKeyCommand, CreateKeyCommand, VerifyKeyCommand } from "@/lib/unkey";
 
 export default function KeyPlayground(props: any) {
+  const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  if(isLoading){
-  GetData('all').then((res) => res).then((res) => {
-    setStepData(res);
-    
-  }).then(() => setIsLoading(false));
-}
-  // Curl Commands 
+
+  const testKey = {
+    keyId: "key_2zD5eYaRgPHd5GFQvJK2gXiMFzCn",
+    key: "3ZbCyxLeugPg8k289354CUYw",
+  };
+  const testing = true;
+  // Curl Commands
   const [curlResponse, setCurlResponse] = useState<any>("");
   const [curlString, setCurlString] = useState<string>("");
-
   // Step Data
   const [step, setStep] = useState<number>(1);
-  const [stepData, setStepData] = useState<any>();
-    // Shared Data 
-  
-  const [apiId, setApiId] = useState<string>();
+  const [stepData, setStepData] = useState<JSON>();
+  const [currStepData, setCurrStepData] = useState<any>();
+  // Shared Data
+
+  const [keyId, setKeyId] = useState<string>("");
+  const [keyName, setKeyName] = useState<string>("");
   // Router
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.get("step")
-      ? setStep(parseInt(params.get("step") as string))
-      : setStep(1);
-  }, [pathname, searchParams]);
-
-  useEffect(() => {
-    //console.log("Step Data", stepData);
-    //console.log("Step Api", stepData?.shared?.apiId);
-    setApiId(stepData?.shared?.apiId);
-    if(stepData?.shared?.apiId !== ''){
-      setIsLoading(false);
-    }
-    
-  }, [setStepData, stepData]);
-  
-
-  
-  async function handleSteps(step: number) {
-    const val = `step${step}`;
-    const res = await GetData(val).then((res) => res);
-    router.push(pathname + "?" + createQueryString("step", step.toString()));
-    
-    //setStepData(res);
-  }
-
   const createQueryString = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -72,39 +52,164 @@ export default function KeyPlayground(props: any) {
     },
     [searchParams]
   );
-  async function handleClick(step: string) {
-    if(stepData){
-      let temp = await stepData;
-     
-      let curl = temp[step].curlCommand;
-      temp[step].curlInput = curl;
-      setStepData(temp);
-      setCurlString(curl);
-      //console.log("Processed sent to Terminal", curlString);
 
-      const response = await createKey(curl);
-      if(response){
-        setCurlResponse(JSON.stringify(response));
-        console.log("Response", curlResponse);
-      }
+  useEffect(() => {
+    setIsLoading(true);
+    fetch("api/getData")
+      .then((res) => res.json())
+      .then((data) => {
+        setStepData(data);
+        setIsLoading(false);
+      });
+    console.log("Step Data", stepData);
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.get("step")
+      ? setStep(parseInt(params.get("step") as string))
+      : setStep(1);
+  }, [pathname, searchParams]);
+
+  // Sets proper data based on step
+  // Sets query string based on step change
+  async function handleSteps(step: number) {
+    if (stepData) {
+      Object.keys(stepData).filter((key) => {
+        if (key === `step${step}`) {
+          setCurrStepData(key);
+        }
+      });
+
+      router.push(pathname + "?" + createQueryString("step", step.toString()));
     }
   }
-  
-  function handleTerminalRequest(curl: string) {
-    const url = GetUrlFromString(curl);
-    console.log("Terminal", curl, "URL from Helper", url);
+
+  // Handles click event to call this steps curl command
+  async function handleClick(stepIndex: number) {
+    //console.log("stepData", stepData);
+
+    // Check if step data is available
+    if (currStepData) {
+      let temp = await stepData;
+      let curl = currStepData.curlCommand;
+      currStepData.curlInput = curl;
+      setStepData(temp);
+      setCurlString(curl);
+      //console.log("step for handle click", step);
+      switch (stepIndex) {
+        case 1:
+          if (testing) {
+            //console.log("testKey", testKey);
+            setKeyId(`${testKey.keyId}`);
+            setKeyName(`${testKey.key}`);
+            setTimeout(() => {
+              setCurlResponse(
+                `{ key: ${testKey.key}, keyId: ${testKey.keyId} }`
+              );
+              //console.log("Step 1 - Key Id", keyId, "Key Name", keyName);
+              //console.log("Step 1 - Curl Response", curlResponse);
+            }, 2000);
+
+            break;
+          } else {
+            const res = await CreateKeyCommand(apiId ?? "");
+            //console.log("Create Key Response", res);
+            const key = res;
+            if (key.keyId && key.key) {
+              setKeyId(testKey.keyId);
+              setKeyName(testKey.key);
+            }
+            setCurlResponse(key);
+          }
+        case 2:
+          //console.log("Step 2 KeyId", keyId, "KeyName", keyName);
+
+          // if (keyId && testing) {
+          //   setCurlResponse(`{
+          //     "id": keyId,
+          //     "start":"test",
+          //     "apiId": apiId,
+          //     "workspaceId":"ws_12345",
+          //     "meta":{},
+          //     "createdAt":1713891646582,
+          //     "ratelimit":{},
+          //     "roles":[],
+          //     "permissions":[],
+          //     "enabled":true
+          //   }`);
+          //   break;
+          // }
+
+          if (keyId) {
+            //console.log("Key Id", keyId);
+            const resStepTwo = await GetKeyCommand(keyId ?? "");
+            const getKeyData = resStepTwo;
+            setCurlResponse(JSON.stringify(getKeyData));
+            //console.log("Get Key Response", getKeyData);
+          } else {
+            setCurlResponse("Key Id not found");
+          }
+
+          break;
+        case 3:
+          break;
+        case 4:
+          break;
+        case 5:
+          break;
+        case 6:
+          break;
+        case 7:
+          break;
+        case 8:
+          break;
+        case 9:
+          break;
+        default:
+          break;
+      }
+      //const response = await HandleCurl(curl, step, keyId ?? undefined, testing ).then((res) => res);
+      // if (response) {
+      //   setCurlResponse(JSON.stringify(response));
+      //   const temp = response;
+      //   setKeyId(JSON.stringify(response ? response.keyId : ""));
+      //   setKeyName(JSON.stringify(response.key));
+      //   console.log("keyId", keyId, "keyName", keyName);
+      //   console.log("curlResponse", curlResponse);
+      //   console.log("Response", response);
+      //   setBufferedContent((previous) => (
+      //     <>
+      //       {previous}
+      //       <span>--------------------------</span>
+      //       <span>{response.toString()}</span>
+      //       {<br />}
+      //     </>
+      //   ));
+      // }
+    }
+    // setTimeout(() => {
+    //   console.log("keyId", keyId, "keyName", keyName);
+    // }, 2000);
   }
 
-  return isLoading ? <div>Loading...</div> :(
-    <div className="flex flex-row">
-      <div className="flex flex-col w-1/2 h-full overflow-hidden scroll-smooth">
+  function handleTerminalRequest(curl: string) {
+    const url = GetUrlFromString(curl, keyId ?? "");
+    //console.log("Terminal", curl, "URL from Helper", url);
+  }
+
+  return isLoading ? (
+    <div>Loading...</div>
+  ) : (
+    <div className="flex flex-row w-full">
+      <div className="flex flex-col w-1/2 h-full scroll-smooth">
         <Accordion type="single" collapsible value={`step${step.toString()}`}>
           <AccordionItem value="step1">
             <AccordionTrigger onFocus={() => handleSteps(1)}>
               1. Create Key
             </AccordionTrigger>
             <AccordionContent className="AccordionContent">
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 ">
                 <p>Creating a key for your users can be done in two ways. </p>
                 <p>
                   The first is using the Unkey API at the following:
@@ -127,7 +232,7 @@ export default function KeyPlayground(props: any) {
                   <div className="flex justify-end">
                     <Button
                       className="lg:w-1/4"
-                      onClick={() => handleClick(`step${step ?? 1}`)}
+                      onClick={() => handleClick(1)}
                       variant={"outline"}
                     >
                       Do it for me
@@ -167,9 +272,17 @@ export default function KeyPlayground(props: any) {
 	"enabled":true
 }`}
               />
-              <Button onClick={() => handleSteps(2)} variant={"outline"}>
-                Test
-              </Button>
+              {
+                <div className="flex justify-end">
+                  <Button
+                    className="lg:w-1/4"
+                    onClick={() => handleClick(2)}
+                    variant={"outline"}
+                  >
+                    Do it for me
+                  </Button>
+                </div>
+              }
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="step3">
@@ -390,7 +503,7 @@ export default function KeyPlayground(props: any) {
             sendRequest={(curl: string) => handleTerminalRequest(curl)}
             response={curlResponse}
             curlString={curlString}
-            apiId={stepData?.shared?.apiId}
+            apiId={apiId ?? ""}
           />
         </TerminalProvider>
       </div>

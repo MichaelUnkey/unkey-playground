@@ -2,8 +2,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { ReactTerminal, TerminalContext } from "react-terminal";
 
-
-
 function Terminal(props: {
   
   sendRequest: (curl: string) => void;
@@ -20,7 +18,7 @@ function Terminal(props: {
   const [prompt, setPrompt] = useState(">>>");
   const [curl, setCurl] = useState(props.curlString);
   const [response, setResponse] = useState(props.response);
-  const [apiId, setApiId] = useState(props.apiId);
+  const [allowInput, setAllowInput] = useState(true);
 
   useEffect(() => {
     if (props.curlString != "" && props.curlString != curl) {
@@ -31,7 +29,7 @@ function Terminal(props: {
     }
     if (curl) {
       console.log("curl string", curl);
-      setCurlPlayground(curl);
+      commands.curl(curl);
     }
   }, [curl, props.curlString]);
   useEffect(() => {
@@ -58,7 +56,7 @@ function Terminal(props: {
   //   //setPrompt("Processing...");
   // }
   async function setCurlPlayground(curl: string) {
-    await commands.curl(curl);
+    
     setTemporaryContent("Processing...");
     
     
@@ -182,6 +180,7 @@ function Terminal(props: {
       ));
     },
     curl: async (curl: any) => {
+      setAllowInput(false);
       setTemporaryContent("Processing...");
       
       const res = props.response;
@@ -202,7 +201,7 @@ function Terminal(props: {
           </>
         ));
       }, 2 * 1000);
-
+      setAllowInput(true);
       return (
         <>
           <br />
@@ -223,6 +222,7 @@ function Terminal(props: {
       {/* <p className="my-6">{curl ?? "No Curl"}</p> */}
       {/* <button onClick={setCurlFromPlayground(curl??"")}>Test</button> */}
       <ReactTerminal
+        enableInput={allowInput}
         setInput={"Input"}
         prompt={prompt}
         theme={theme}

@@ -1,9 +1,8 @@
+"use server";
 import curl2Json from "@bany/curl-to-json";
-import { CreateKeyCommand, GetKeyCommand } from "./unkey";
 import StepData from "./data";
-import { NextResponse } from "next/server";
 
-export const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
+const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
 const urls = {
   createKey: "https://api.unkey.dev/v1/keys.createKey",
   getkey: "https://api.unkey.dev/v1/keys.getKey",
@@ -11,25 +10,23 @@ const urls = {
   updateKey: "https://api.unkey.dev/v1/keys.updateKey",
   getVerifications: "https://api.unkey.dev/v1/keys.getVerifications",
 };
+export async function GetApiId() {
+  return apiId;
+}
 
-//const rootKey = process.env.UNKEY_ROOT_KEY;
-//console.log("Root Key", rootKey);
 
 const stepData = StepData();
-export async function createKey(curlString: string) {
- 
-  const reqString = curl2Json(curlString);
-  if (apiId) {
-    
-    const keyResponse = {key: '3ZbCyxLeugPg8k289354CUYw', keyId: 'key_2zD5eYaRgPHd5GFQvJK2gXiMFzCn'}//await CreateKeyCommand(apiId).then((res) => res);
-    // if (keyResponse.error) {
-    //   return keyResponse.error;
-    // }
-    return {"key": keyResponse.key, "keyId": keyResponse.keyId};
-  }
+export async function HandleCurl(
+  curlString: string,
+  keyId: string | undefined,
   
+) {
+  const reqString = curl2Json(curlString);
+  const reqUrl = await GetUrlFromString(curlString, keyId);
+  reqString.url = reqUrl;
+  return reqString;
 }
-export function SwapValues(data: string) {
+export async function SwapValues(data: string) {
   let newData = data;
   if (apiId) {
     newData = data.replace("<apiId>", apiId);
@@ -42,7 +39,10 @@ export function SwapValues(data: string) {
   // }
   return newData;
 }
-export async function GetUrlFromString(curlString: string) {
+export async function GetUrlFromString(
+  curlString: string,
+  keyId: string | undefined
+) {
   const reqString = curl2Json(curlString);
 
   let url = reqString.url;
@@ -51,7 +51,7 @@ export async function GetUrlFromString(curlString: string) {
       url = "/api/createKey";
       break;
     case urls.getkey:
-      url = `/api/getKey?keyId=<keyId>`;
+      url = `/api/getKey?keyId=${keyId}`;
       break;
     case urls.verifyKey:
       url = "/api/verifyKey";
@@ -64,12 +64,8 @@ export async function GetUrlFromString(curlString: string) {
       break;
     default:
   }
-  const res = await fetch(url);
-  if (res.ok) {
-    return NextResponse.json({ res }, { status: 200 });
-  }
 
-  return NextResponse.json({ res }, { status: 500 });
+  return url;
 }
 export async function GetData(stepKey: string) {
   const data = await stepData.then((res) => res);
