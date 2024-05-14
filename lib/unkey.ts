@@ -70,15 +70,21 @@ export async function GetKeyCommand(keyId: string) {
 // Update Key
 export async function UpdateKeyCommand(
   keyId: string, 
-  keyName: string | null,
-  ownerId: string,
-  metaData: {} | null,
-  expires: number | null, 
-  enabled: boolean,
+  keyName: string | undefined,
+  ownerId: string | undefined,
+  metaData: {} | undefined,
+  expires: number | undefined, 
+  enabled: boolean | undefined
 ) {
   if (!rootKey) {
     return "'Root key not found'";
   }
+  if(!keyId){
+    console.log("No Key ID from UNKEY.ts");
+    
+  }
+  console.log("Key ID", keyId);
+  
   const unkey = new Unkey({ rootKey: rootKey });
   const { result, error } = await unkey.keys.update({
     keyId: keyId, 
@@ -93,5 +99,31 @@ export async function UpdateKeyCommand(
     return error.message;
   }
   
+  return result;
+}
+
+// Get Verifications
+export async function GetVerificationsCommand(keyId: string) {
+  if (!rootKey) {
+    return "'Root key not found'";
+  }
+  const unkey = new Unkey({ rootKey: rootKey });
+  const { result, error } = await unkey.keys.getVerifications({keyId: keyId});
+  if(error){
+    return error.message;
+  }
+  return result;
+
+}
+
+export async function DeleteKeyCommand(keyId: string) {
+  if (!rootKey) {
+    return "'Root key not found'";
+  }
+  const unkey = new Unkey({ rootKey: rootKey });
+  const { result, error } = await unkey.keys.delete({keyId: keyId});
+  if(error){
+    return error.message;
+  }
   return result;
 }

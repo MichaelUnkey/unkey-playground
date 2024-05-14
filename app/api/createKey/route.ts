@@ -8,6 +8,6 @@ export async function POST(req: any) {
   if (jsonData?.apiId) {
     const apiId = await jsonData.apiId;
     const res = await CreateKeyCommand(apiId);
-    return res
+    return Response.json(res);
   }
 }

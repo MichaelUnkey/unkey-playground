@@ -3,7 +3,6 @@ import React, { useState, useContext, useEffect } from "react";
 import { ReactTerminal, TerminalContext } from "react-terminal";
 
 function Terminal(props: {
-  
   sendRequest: (curl: string) => void;
   response: string;
   curlString: string;
@@ -11,69 +10,44 @@ function Terminal(props: {
 }) {
   //Terminal Setup
   // const setTemporaryContent = useContext(TerminalContext).setTemporaryContent;
-  const { setBufferedContent, setTemporaryContent } = useContext(TerminalContext);
+  const { setBufferedContent, setTemporaryContent } =
+    useContext(TerminalContext);
   const [theme, setTheme] = useState("dark");
   const [controlBar, setControlBar] = useState(false);
   const [controlButtons, setControlButtons] = useState(false);
   const [prompt, setPrompt] = useState(">>>");
-  const [curl, setCurl] = useState(props.curlString);
-  const [response, setResponse] = useState(props.response);
+  const [curl, setCurl] = useState("");
+  const [response, setResponse] = useState("");
   const [allowInput, setAllowInput] = useState(true);
 
   useEffect(() => {
-    if (props.curlString != "" && props.curlString != curl) {
+    if (props.curlString !== curl) {
       setCurl(props.curlString);
+      setPlayground(props.curlString);
     }
-    if (!curl || curl == "") {
-      return;
-    }
-    if (curl) {
-      console.log("curl string", curl);
-      commands.curl(curl);
-    }
-  }, [curl, props.curlString]);
+  }, [props.curlString]);
+
   useEffect(() => {
     setResponse(props.response);
-    if (response === "") {
-      return;
+    if (response !== props.response) {
+      setResponse(props.response);
+      setPlayground(props.response);
+      
     }
-    if (response) {
-      //setResponsePlayground(response);
-      console.log("Response Terminal Side", response);
-    }
-  }, [response, props.response]);
-  // async function setResponsePlayground(response: string){
-  //   setPrompt(">>>");
-  //   setBufferedContent((previous) => (
-  //     <>
-  //       {previous}
-  //       <span>--------------------------</span>
-  //       <span>{response}</span>
-  //       {<br />}
-  //     </>
-  //   ));
-  //   setTemporaryContent("Processing...");
-  //   //setPrompt("Processing...");
-  // }
-  async function setCurlPlayground(curl: string) {
-    
-    setTemporaryContent("Processing...");
-    
-    
-    //const test = commands.count_to(3);
+  }, [props.response]);
 
-    // setBufferedContent((previous) => (
-    //   <>
-    //     {previous}
-    //     <span>---------------------------------</span>
-    //     <br />
-    //     <span>{curl}</span>
-    //     {<br />}
-    //   </>
-    // ));
-    //setTemporaryContent("Processing...");
-    // setPrompt("Processing...");
+  async function setPlayground(input: string) {
+    setBufferedContent((previous) => (
+      <>
+        {previous}
+        <span>--------------------------</span><br />
+        <span>{input}</span>
+        {<br />}
+      </>
+    ));
+    setTemporaryContent("Processing...");
   }
+  
   const commands = {
     help: (
       <span>
@@ -182,9 +156,9 @@ function Terminal(props: {
     curl: async (curl: any) => {
       setAllowInput(false);
       setTemporaryContent("Processing...");
-      
+
       const res = props.response;
-     
+
       setBufferedContent((previous) => (
         <>
           {previous}

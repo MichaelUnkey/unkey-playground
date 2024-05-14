@@ -1,6 +1,13 @@
 "use server";
 import curl2Json from "@bany/curl-to-json";
-import StepData from "./data";
+import {
+  CreateKeyCommand,
+  GetKeyCommand,
+  VerifyKeyCommand,
+  UpdateKeyCommand,
+  GetVerificationsCommand,
+  DeleteKeyCommand,
+} from "./unkey";
 
 const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
 const urls = {
@@ -9,111 +16,69 @@ const urls = {
   verifyKey: "https://api.unkey.dev/v1/keys.verifyKey",
   updateKey: "https://api.unkey.dev/v1/keys.updateKey",
   getVerifications: "https://api.unkey.dev/v1/keys.getVerifications",
+  deleteKey: "https://api.unkey.dev/v1/keys.deleteKey",
 };
-export async function GetApiId() {
-  return apiId;
-}
 
-
-const stepData = StepData();
 export async function HandleCurl(
   curlString: string,
-  keyId: string | undefined,
-  
+  keyId: string,
+  key: string
 ) {
-  const reqString = curl2Json(curlString);
-  const reqUrl = await GetUrlFromString(curlString, keyId);
-  reqString.url = reqUrl;
-  return reqString;
+  const res = await GetDataFromString(curlString, keyId, key);
+  return JSON.stringify(res);
 }
-export async function SwapValues(data: string) {
-  let newData = data;
-  if (apiId) {
-    newData = data.replace("<apiId>", apiId);
-  }
-  // if (keyName !== "") {
-  //   curlString.replace("<key>", keyName);
-  // }
-  // if (keyId !== "") {
-  //   curlString.replace("<keyId>", keyId);
-  // }
-  return newData;
-}
-export async function GetUrlFromString(
+
+export async function GetDataFromString(
   curlString: string,
-  keyId: string | undefined
+  keyId: string,
+  key: string
 ) {
   const reqString = curl2Json(curlString);
+  const testing = true;
+  const keyData = {
+    keyId: !testing ? keyId : "key_2zD5eYaRgPHd5GFQvJK2gXiMFzCn",
+    key: !testing ? key : "3ZbCyxLeugPg8k289354CUYw",
+  };
 
   let url = reqString.url;
   switch (url) {
     case urls.createKey:
-      url = "/api/createKey";
-      break;
+      if (apiId) {
+        const createRes = await CreateKeyCommand(apiId);
+        console.log(createRes);
+        return createRes;
+      }
+      return { error: "No API ID" };
+
     case urls.getkey:
-      url = `/api/getKey?keyId=${keyId}`;
-      break;
+      const getResponse = await GetKeyCommand(keyData.keyId);
+      console.log(getResponse);
+      return getResponse;
     case urls.verifyKey:
-      url = "/api/verifyKey";
-      break;
+      const verifyRes = await VerifyKeyCommand(keyData.key, apiId ?? "");
+      //console.log(verifyRes);
+      return verifyRes;
     case urls.updateKey:
-      url = "/api/updateKey";
-      break;
+      const updateRes = await UpdateKeyCommand(
+        keyData.keyId,
+        reqString.data.keyName ?? undefined,
+        reqString.data.ownerId ?? undefined,
+        reqString.data.metaData ?? undefined,
+        reqString.data.expires ?? undefined,
+        reqString.data.enabled ?? undefined
+      );
+      console.log(updateRes);
+      return updateRes;
     case urls.getVerifications:
-      url = "/api/getVerifications";
-      break;
+      const verificationsRes = await GetVerificationsCommand(keyData.keyId);
+      console.log(verificationsRes);
+      return verificationsRes;
+    case urls.deleteKey:
+      const deleteRes = await DeleteKeyCommand(keyData.keyId);
+      console.log(deleteRes);
+      return deleteRes;
     default:
   }
 
-  return url;
-}
-export async function GetData(stepKey: string) {
-  const data = await stepData.then((res) => res);
-  let dataString = JSON.stringify(data);
-  dataString = await SwapValues(dataString);
-  const newData = JSON.parse(dataString);
-  if (apiId) {
-    data.shared.apiId = apiId;
-    //console.log("Helper apiId", apiId);
-  }
-  //console.log("Helper data", data);
-
-  switch (stepKey) {
-    case "all":
-      return newData;
-      break;
-    case "step1":
-      return newData.step1;
-      break;
-    case "step2":
-      return newData.step2;
-      break;
-    case "step3":
-      return newData.step3;
-      break;
-    case "step4":
-      return newData.step4;
-      break;
-    case "step5":
-      return newData.step5;
-      break;
-    case "step6":
-      return newData.step6;
-      break;
-    case "step7":
-      return newData.step7;
-      break;
-    case "step8":
-      return newData.step8;
-      break;
-    case "step9":
-      return newData.step9;
-      break;
-    case "shared":
-      return newData.shared;
-      break;
-    default:
-      return newData;
-      break;
-  }
+  return { error: "Invalid URL" };
 }
