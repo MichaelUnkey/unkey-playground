@@ -166,22 +166,14 @@ function Terminal(props: {
           {<br />}
         </>
       ));
-      setTimeout(() => {
-        setBufferedContent((previous) => (
-          <>
-            {previous}
-            <span>{res}</span>
-            {<br />}
-          </>
-        ));
-      }, 2 * 1000);
-      setAllowInput(true);
+      props.sendRequest(curl);
       return (
         <>
           <br />
-          Finished
+          Processing...
         </>
       );
+
     },
   };
 
@@ -193,8 +185,6 @@ function Terminal(props: {
 
   return (
     <div className="h-[1000px]">
-      {/* <p className="my-6">{curl ?? "No Curl"}</p> */}
-      {/* <button onClick={setCurlFromPlayground(curl??"")}>Test</button> */}
       <ReactTerminal
         enableInput={allowInput}
         setInput={"Input"}

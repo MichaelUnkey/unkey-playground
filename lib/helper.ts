@@ -34,7 +34,7 @@ export async function GetDataFromString(
   key: string
 ) {
   const reqString = curl2Json(curlString);
-  const testing = true;
+  const testing = false;
   const keyData = {
     keyId: !testing ? keyId : "key_2zD5eYaRgPHd5GFQvJK2gXiMFzCn",
     key: !testing ? key : "3ZbCyxLeugPg8k289354CUYw",
@@ -67,7 +67,7 @@ export async function GetDataFromString(
         reqString.data.expires ?? undefined,
         reqString.data.enabled ?? undefined
       );
-      console.log(updateRes);
+      console.log("Update Response", updateRes);
       return updateRes;
     case urls.getVerifications:
       const verificationsRes = await GetVerificationsCommand(keyData.keyId);

@@ -1,6 +1,7 @@
 "use client";
 
 import CodeComponent from "./codeComponent";
+import { CodeBlock } from "./ui/codeBlock";
 import TerminalProvider from "./terminalProvider";
 import Terminal from "./terminal";
 import {
@@ -18,19 +19,15 @@ import { StepData } from "@/lib/data";
 export default function KeyPlayground(props: any) {
   const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
   // Curl Commands
   const [curlResponse, setCurlResponse] = useState<any>("");
   const [curlString, setCurlString] = useState<string>("");
   // Step Data
   const [step, setStep] = useState<number>(1);
   const [stepData, setStepData] = useState<any>();
-  // const [currStepData, setCurrStepData] = useState<any>();
   // Shared Data
-
   const [keyId, setKeyId] = useState<string>("");
   const [keyName, setKeyName] = useState<string>("");
-
   // Router
   const router = useRouter();
   const pathname = usePathname();
@@ -59,15 +56,13 @@ export default function KeyPlayground(props: any) {
       : setStep(1);
   }, [pathname, searchParams]);
 
-  // Sets proper data based on step
-  // Sets query string based on step change
   async function handleSteps(step: number) {
     router.push(pathname + "?" + createQueryString("step", step.toString()));
   }
+
   function parseCurlCommand(stepIndex: number) {
     let tempString = stepData[stepIndex].curlCommand.toString();
     const timeStamp = (Date.now() + 24 * 60 * 60 * 1000);
-    console.log("TimeStamp", timeStamp);
     tempString = tempString.replace("<timeStamp>", timeStamp);
     if (apiId !== "" || apiId !== undefined) {
       tempString = tempString.replace("<apiId>", apiId);
@@ -79,34 +74,39 @@ export default function KeyPlayground(props: any) {
       tempString = tempString.replace("<key>", keyName);
     }
     const curlString = tempString;
-    setCurlString(curlString);
+    
     return curlString;
   }
 
-  // Handles click event to call this steps curl command
   async function handleClick(stepIndex: number) {
-    // Set current step and curl Command from clicked step
-
-    const curlString = parseCurlCommand(stepIndex);
-    console.log("returned curl string", curlString);
-
+    const curlString = await parseCurlCommand(stepIndex);
+    setCurlString(curlString);
     const response = await HandleCurl(curlString, keyId ?? "", keyName ?? "");
     const resJson = JSON.parse(response);
-    // console.log("Response", response);
     setCurlResponse(response);
-    // const resJson = curl2Json(response);
-    console.log("Response JSON", resJson);
-
     if (resJson.keyId && resJson.key) {
       setKeyId(resJson.keyId);
       setKeyName(resJson.key);
     }
+    if(!response.includes("error")) {
+      handleSteps(step + 1);
+    }
   }
 
-  // function handleTerminalRequest(curl: string) {
-  //   const url = GetUrlFromString(curl, keyId ?? "");
-  //   //console.log("Terminal", curl, "URL from Helper", url);
-  // }
+  async function handleTerminalRequest(curl: string) {
+    const curlString = curl;
+    setCurlString(curlString);
+    const response = await HandleCurl(curlString, keyId ?? "", keyName ?? "");
+    const resJson = JSON.parse(response);
+    setCurlResponse(response);
+    if (resJson.keyId && resJson.key) {
+      setKeyId(resJson.keyId);
+      setKeyName(resJson.key);
+    }
+    if(!response.includes("error")) {
+      handleSteps(step + 1);
+    }
+  }
 
   return isLoading ? (
     <div>Loading...</div>
@@ -115,12 +115,14 @@ export default function KeyPlayground(props: any) {
       <div className="flex flex-col w-1/2 h-full scroll-smooth">
         <Accordion type="single" collapsible value={`step${step.toString()}`}>
           <AccordionItem value="step1">
-            <AccordionTrigger onFocus={() => handleSteps(1)}>
+            <p className="text-center text-lg">Welcome to the Unkey playground.</p> 
+            <p className="text-center text-lg mt-2">Here you can test out the Unkey API without signing up to get an idea of how it works. </p>
+            <AccordionTrigger onFocus={() => handleSteps(1)} className="mt-6">
               1. Create Key
             </AccordionTrigger>
             <AccordionContent className="AccordionContent">
               <div className="flex flex-col gap-4 ">
-                <p>Creating a key for your users can be done in two ways. </p>
+                <p>Welcome to the Unkey playground. Here you can test out the Unkey API. Click on 'Next' or step 1 to begin. </p>
                 <p>
                   The first is using the Unkey API at the following:
                   https://api.unkey.dev/v1/keys.createKey
@@ -132,11 +134,8 @@ export default function KeyPlayground(props: any) {
                   command.
                 </p>
 
-                <p>{`Replace the <apiId> with: ${apiId}`}</p>
                 <p>{`Leave the <token> tag for now. This is normally where you would put your root key. For now we will handle this for you. Everything else you can input youself.`}</p>
-                <p>Example</p>
-                {/* <div>{stepData ? JSON.stringify(stepData?.step1) : ""}</div> */}
-                {/* <CodeComponent val={'this is shit'} />  */}
+                <CodeBlock className="" >{stepData[1].curlCommand}</CodeBlock>
 
                 {
                   <div className="flex justify-end">
@@ -161,12 +160,8 @@ export default function KeyPlayground(props: any) {
                 Next we can retrieve a key by its ID. Like before, either use
                 the terminal or the button.
               </p>
-              <p>Example</p>
-              <CodeComponent
-                val={`curl --request GET \
-  --url https://api.unkey.dev/v1/keys.getKey?keyId=key_12345 \
-  --header 'Authorization: Bearer <token>'`}
-              />
+           
+              <CodeBlock className="" >{stepData[2].curlCommand}</CodeBlock>
               <p>Example</p>
               <CodeComponent
                 val={`{
@@ -392,6 +387,35 @@ export default function KeyPlayground(props: any) {
           </AccordionItem>
           <AccordionItem value="step9">
             <AccordionTrigger onFocus={() => handleSteps(9)}>
+              9. Verify Key
+            </AccordionTrigger>
+            <AccordionContent>
+              <p>
+                Lets say for whatever reason you want to revoke access to a key.
+                This can be done using the same updateKey endpoint we have used
+                before. Only this time we will set enabled to false. This will
+                make sure that if the key is used to verify a user it will
+                return <span>UNAUTHORIZED</span>.{" "}
+              </p>
+              <p>Example</p>
+              <CodeComponent
+                val={`curl --request POST \
+                --url https://api.unkey.dev/v1/keys.verifyKey \
+                --header 'Content-Type: application/json' \
+                --data '{
+                "apiId": "api_1234",
+                "key": "sk_1234"
+              }'`}
+              />
+              <p>Example</p>
+              <CodeComponent val={`{}`} />
+              <Button onClick={() => handleClick(9)} variant={"outline"}>
+                Test
+              </Button>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="step10">
+            <AccordionTrigger onFocus={() => handleSteps(10)}>
               Sign Up
             </AccordionTrigger>
             <AccordionContent>
@@ -399,7 +423,7 @@ export default function KeyPlayground(props: any) {
                 Now that you have seen some of what our platform has to offer.
                 Sign up today and elevate your user management experience!
               </p>
-              <Button onClick={() => handleClick(9)} variant={"outline"}>
+              <Button onClick={() => handleClick(10)} variant={"outline"}>
                 Test
               </Button>
             </AccordionContent>
@@ -410,7 +434,7 @@ export default function KeyPlayground(props: any) {
         {/* <Link href="/?step=5">CLick me</Link> */}
         <TerminalProvider>
           <Terminal
-            sendRequest={(curl: string) => ""}
+            sendRequest={(curl:string) => handleTerminalRequest(curl)}
             response={curlResponse}
             curlString={curlString}
             apiId={apiId ?? ""}

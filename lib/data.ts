@@ -2,11 +2,14 @@ const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
 export const StepData =  
   [ {
       step: 0,
-      apiId: apiId
+      apiId: apiId,
+      name: "Welcome",
+      blurb: "Welcome to the Unkey playground. Here you can test out the Unkey API. Click on 'Next' or step 1 to begin.",  
   },
      {
       step: 1,
       name: "Create Key",
+      blurb: "Lets start by creating a key. In any of these steps you can click the 'Next' button to automatically use the command and see the result. Copy or type the command into the terminal and make sure to use the provided apiId.",
       curlCommand: `curl --request POST 
      --url https://api.unkey.dev/v1/keys.createKey 
      --header 'Authorization: Bearer <token>' 
@@ -35,20 +38,19 @@ export const StepData =
     },
      {
       step: 4,
-      name: "OwnerId",
+      name: "Update ownerId",
       curlCommand: `curl --request POST 
      --url https://api.unkey.dev/v1/keys.updateKey 
      --header 'Authorization: Bearer <token>' 
      --header 'Content-Type: application/json' 
      --data '{
      "keyId": <keyId>,
-     "name": "Customer X",
      "ownerId": "user_123",
    }'`
     },
      {
       step: 5,
-      name: "Expiration",
+      name: "Update expiration",
       curlCommand: `curl --request POST 
      --url https://api.unkey.dev/v1/keys.updateKey 
      --header 'Authorization: Bearer <token>' 
@@ -80,17 +82,27 @@ export const StepData =
     },
      {
       step: 8,
-      name: "Verify Key",
+      name: "Delete Key",
       curlCommand: `curl --request POST 
-     --url https://api.unkey.dev/v1/keys.verifyKey 
+     --url https://api.unkey.dev/v1/keys.deleteKey 
      --header 'Content-Type: application/json' 
      --data '{
-       "apiId": <apiId>,
-       "key": <key>
+       "keyId": <keyId>
    }'`
     },
-    {
+     {
       step: 9,
+      name: "Verify Key",
+      curlCommand:  `curl --request POST 
+      --url https://api.unkey.dev/v1/keys.verifyKey 
+      --header 'Content-Type: application/json' 
+      --data '{
+      "apiId": <apiId>,
+      "key": <key>
+    }'`
+    },
+    {
+      step: 10,
       name: "Sign up",
     }
   ];
