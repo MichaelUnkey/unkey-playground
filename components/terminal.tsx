@@ -9,7 +9,6 @@ function Terminal(props: {
   apiId: string;
 }) {
   //Terminal Setup
-  // const setTemporaryContent = useContext(TerminalContext).setTemporaryContent;
   const { setBufferedContent, setTemporaryContent } =
     useContext(TerminalContext);
   const [theme, setTheme] = useState("dark");
@@ -23,7 +22,7 @@ function Terminal(props: {
   useEffect(() => {
     if (props.curlString !== curl) {
       setCurl(props.curlString);
-      setPlayground(props.curlString);
+      commands.curlCommand(props.curlString);
     }
   }, [props.curlString]);
 
@@ -31,23 +30,12 @@ function Terminal(props: {
     setResponse(props.response);
     if (response !== props.response) {
       setResponse(props.response);
-      setPlayground(props.response);
+      commands.curlResponse(props.response);
       
     }
   }, [props.response]);
 
-  async function setPlayground(input: string) {
-    setBufferedContent((previous) => (
-      <>
-        {previous}
-        <span>--------------------------</span><br />
-        <span>{input}</span>
-        {<br />}
-      </>
-    ));
-    setTemporaryContent("Processing...");
-  }
-  
+ 
   const commands = {
     help: (
       <span>
@@ -155,25 +143,37 @@ function Terminal(props: {
     },
     curl: async (curl: any) => {
       setAllowInput(false);
-      setTemporaryContent("Processing...");
+      setCurl(curl);
+      props.sendRequest(curl);
+      console.log("curl", curl);
 
-      const res = props.response;
-
+      
+    },
+    curlCommand: async (curl: any) => {
+      console.log("curlCommand", curl);
+      setAllowInput(false);
       setBufferedContent((previous) => (
         <>
           {previous}
+          <span>--------------------------</span><br />
           <span>{curl}</span>
           {<br />}
         </>
       ));
-      props.sendRequest(curl);
-      return (
+      
+    },
+    curlResponse: async (response: any) => {
+      console.log("curlResponse", response);
+      
+      setBufferedContent((previous) => (
         <>
-          <br />
-          Processing...
+          {previous}
+          <span>--------------------------</span><br />
+          <span>{response}</span>
+          {<br />}
         </>
-      );
-
+      ));
+      setAllowInput(true);
     },
   };
 

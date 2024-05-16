@@ -21,8 +21,8 @@ const urls = {
 
 export async function HandleCurl(
   curlString: string,
-  keyId: string,
-  key: string
+  keyId: string | undefined,
+  key: string | undefined
 ) {
   const res = await GetDataFromString(curlString, keyId, key);
   return JSON.stringify(res);
@@ -30,19 +30,22 @@ export async function HandleCurl(
 
 export async function GetDataFromString(
   curlString: string,
-  keyId: string,
-  key: string
+  keyId: string | undefined,
+  key: string | undefined
 ) {
   const reqString = curl2Json(curlString);
-  const testing = false;
-  const keyData = {
-    keyId: !testing ? keyId : "key_2zD5eYaRgPHd5GFQvJK2gXiMFzCn",
-    key: !testing ? key : "3ZbCyxLeugPg8k289354CUYw",
-  };
+  // const testing = true;
+  // const keyData = {
+  //   keyId: !testing ? keyId : "key_2zD5eYaRgPHd5GFQvJK2gXiMFzCn",
+  //   key: !testing ? key : "3ZbCyxLeugPg8k289354CUYw",
+  // };
 
   let url = reqString.url;
   switch (url) {
     case urls.createKey:
+      // if (testing) {
+      //   return keyData;
+      // }
       if (apiId) {
         const createRes = await CreateKeyCommand(apiId);
         console.log(createRes);
@@ -51,32 +54,56 @@ export async function GetDataFromString(
       return { error: "No API ID" };
 
     case urls.getkey:
-      const getResponse = await GetKeyCommand(keyData.keyId);
-      console.log(getResponse);
-      return getResponse;
+      if (keyId) {
+        const getResponse = await GetKeyCommand(keyId);
+
+        return getResponse;
+      }
+      return { error: "No key ID" };
+
     case urls.verifyKey:
-      const verifyRes = await VerifyKeyCommand(keyData.key, apiId ?? "");
-      //console.log(verifyRes);
-      return verifyRes;
+      
+      if (key) {
+        if(!apiId) return { error: "No API ID" }
+        const verifyRes = await VerifyKeyCommand(key, apiId);
+        return verifyRes;
+      }
+      return { error: "No key" };
+
     case urls.updateKey:
-      const updateRes = await UpdateKeyCommand(
-        keyData.keyId,
-        reqString.data.keyName ?? undefined,
-        reqString.data.ownerId ?? undefined,
-        reqString.data.metaData ?? undefined,
-        reqString.data.expires ?? undefined,
-        reqString.data.enabled ?? undefined
-      );
-      console.log("Update Response", updateRes);
-      return updateRes;
+      if (!keyId) {
+        return { error: "No key ID" };
+      }
+      if (!reqString.data) {
+        return { error: "No data" };
+      }
+      if(keyId){
+        const updateRes = await UpdateKeyCommand(
+          reqString.data.keyId ?? undefined,
+          reqString.data.keyName ?? undefined,
+          reqString.data.ownerId ?? undefined,
+          reqString.data.metaData ?? undefined,
+          reqString.data.expires ?? undefined,
+          reqString.data.enabled ?? undefined
+        );
+        if(updateRes) return updateRes;
+      }
+      
+      return { error: "Invalid data" };
     case urls.getVerifications:
-      const verificationsRes = await GetVerificationsCommand(keyData.keyId);
-      console.log(verificationsRes);
-      return verificationsRes;
+      if (!reqString.data.keyId) {
+        return { error: "No key ID" };
+      }
+      const verificationsRes = await GetVerificationsCommand(reqString.data.keyId);
+      if(verificationsRes) return verificationsRes;
+      return { error: "Invalid data"};
     case urls.deleteKey:
-      const deleteRes = await DeleteKeyCommand(keyData.keyId);
-      console.log(deleteRes);
-      return deleteRes;
+      if (!reqString.data.keyId) {
+        return { error: "No key ID" };
+      }
+      const deleteRes = await DeleteKeyCommand(reqString.data.keyId);
+      if(deleteRes) {return deleteRes;}
+      return { error: "Invalid data" };
     default:
   }
 

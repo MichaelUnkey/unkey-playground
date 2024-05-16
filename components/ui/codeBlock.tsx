@@ -2,15 +2,18 @@
 import { CopyButton } from "./copyButton";
 import { cn } from "@/lib/utils";
 import { Highlight } from "prism-react-renderer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import darkTheme from "./darkTheme";
 
 
 export function CodeBlock({ className, children }: any) {
 
-  const [copyData, _setCopyData] = useState(children.toString());
+  const [copyData, setCopyData] = useState(children ?? '');
 
+  useEffect(() => {
+    setCopyData(children);
+  }, [children]);
   function handleDownload() {
     const element = document.createElement("a");
     const file = new Blob([copyData], { type: "text/plain" });
@@ -57,7 +60,7 @@ export function CodeBlock({ className, children }: any) {
                   >
                     <span className="pl-4 pr-8 text-center text-white/20">{i + 1}</span>
                     {line.map((token, key) => (
-                      <span key={` ${key}-${token}`} {...getTokenProps({ token })} />
+                      <span key={`${key}-${token}`} {...getTokenProps({ token })} />
                     ))}
                   </pre>
                 );
