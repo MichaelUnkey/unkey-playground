@@ -1,6 +1,3 @@
-import { url } from "inspector";
-import { headers } from "next/headers";
-
 const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
 export const StepData = [
   {
@@ -22,10 +19,10 @@ export const StepData = [
     method: "POST",
     blurb:
       "Lets start by creating a key. In any of these steps you can click the 'Next' button to automatically use the command and see the result. Copy or type the command into the terminal and make sure to use the provided apiId.",
-    curlCommand: `curl --request POST 
-     --url https://api.unkey.dev/v1/keys.createKey 
-     --header 'Authorization: Bearer <token>' 
-     --header 'Content-Type: application/json' 
+    curlCommand: `curl --request POST
+     --url https://api.unkey.dev/v1/keys.createKey
+     --header 'Authorization: Bearer <token>'
+     --header 'Content-Type: application/json'
      --data '{"apiId": "${apiId}"}'`,
   },
   {
@@ -37,9 +34,10 @@ export const StepData = [
       contentType: "Content-Type: application/json",
     },
     method: "GET",
-    blurb: "Lets get the key we just created. This will show any data related to this key.",
-    curlCommand: `curl --request GET 
-     --url https://api.unkey.dev/v1/keys.getKey?keyId=<keyId> 
+    blurb:
+      "Lets get the key we just created. This will show any data related to this key.",
+    curlCommand: `curl --request GET
+     --url https://api.unkey.dev/v1/keys.getKey?keyId=<keyId>
      --header 'Authorization: Bearer <token>'`,
   },
   {
@@ -50,10 +48,11 @@ export const StepData = [
       contentType: "Content-Type: application/json",
     },
     method: "POST",
-    blurb: "Now we can verify the key we just created. This will give us some data for analytics and simulate a typical verification process.",
-    curlCommand: `curl --request POST 
-     --url https://api.unkey.dev/v1/keys.verifyKey 
-     --header 'Content-Type: application/json' 
+    blurb:
+      "Now we can verify the key we just created. This will give us some data for analytics and simulate a typical verification process.",
+    curlCommand: `curl --request POST
+     --url https://api.unkey.dev/v1/keys.verifyKey
+     --header 'Content-Type: application/json'
      --data '{"apiId": "<apiId>", "key": "<key>"}'`,
   },
   {
@@ -66,10 +65,10 @@ export const StepData = [
     },
     method: "POST",
     blurb: "",
-    curlCommand: `curl --request POST 
-     --url https://api.unkey.dev/v1/keys.updateKey 
-     --header 'Authorization: Bearer <token>' 
-     --header 'Content-Type: application/json' 
+    curlCommand: `curl --request POST
+     --url https://api.unkey.dev/v1/keys.updateKey
+     --header 'Authorization: Bearer <token>'
+     --header 'Content-Type: application/json'
      --data '{"keyId": "<keyId>", "ownerId": "user_1234"}'`,
   },
   {
@@ -81,9 +80,9 @@ export const StepData = [
     },
     method: "POST",
     blurb: "",
-    curlCommand: `curl --request POST 
-    --url https://api.unkey.dev/v1/keys.verifyKey 
-    --header 'Content-Type: application/json' 
+    curlCommand: `curl --request POST
+    --url https://api.unkey.dev/v1/keys.verifyKey
+    --header 'Content-Type: application/json'
     --data '{"apiId": "${apiId}", "key": "<key>"}'`,
   },
   {
@@ -96,10 +95,10 @@ export const StepData = [
     },
     method: "POST",
     blurb: "",
-    curlCommand: `curl --request POST 
-     --url https://api.unkey.dev/v1/keys.updateKey 
-     --header 'Authorization: Bearer <token>' 
-     --header 'Content-Type: application/json' 
+    curlCommand: `curl --request POST
+     --url https://api.unkey.dev/v1/keys.updateKey
+     --header 'Authorization: Bearer <token>'
+     --header 'Content-Type: application/json'
      --data '{"keyId": "<keyId>", "expires": <timeStamp>}'`,
   },
   {
@@ -111,9 +110,9 @@ export const StepData = [
     },
     method: "POST",
     blurb: "",
-    curlCommand: `curl --request POST 
-     --url https://api.unkey.dev/v1/keys.verifyKey 
-     --header 'Content-Type: application/json' 
+    curlCommand: `curl --request POST
+     --url https://api.unkey.dev/v1/keys.verifyKey
+     --header 'Content-Type: application/json'
      --data '{"apiId": "${apiId}","key": "<key>"}'`,
   },
   {
@@ -140,9 +139,9 @@ export const StepData = [
     },
     method: "POST",
     blurb: "",
-    curlCommand: `curl --request POST 
-     --url https://api.unkey.dev/v1/keys.deleteKey 
-     --header 'Content-Type: application/json' 
+    curlCommand: `curl --request POST
+     --url https://api.unkey.dev/v1/keys.deleteKey
+     --header 'Content-Type: application/json'
      --data '{"keyId": "<keyId>"}'`,
   },
   {
@@ -154,9 +153,9 @@ export const StepData = [
     },
     method: "POST",
     blurb: "",
-    curlCommand: `curl --request POST 
-      --url https://api.unkey.dev/v1/keys.verifyKey 
-      --header 'Content-Type: application/json' 
+    curlCommand: `curl --request POST
+      --url https://api.unkey.dev/v1/keys.verifyKey
+      --header 'Content-Type: application/json'
       --data '{"apiId": "${apiId}", "key": "<key>"}'`,
   },
   {

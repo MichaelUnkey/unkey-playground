@@ -20,6 +20,14 @@ type StepDataItem = {
   name: string;
   blurb: string | undefined;
   curlCommand: string | undefined;
+  method: string | undefined;
+  headers:
+    | {
+        authorization: string | undefined;
+        contentType: string | undefined;
+      }
+    | undefined;
+  url: string | undefined;
 };
 
 export default function KeyPlayground() {
@@ -90,7 +98,7 @@ export default function KeyPlayground() {
     return tempString;
   }
 
-  async function handleClick(index: number) {
+  async function handleButtonClick(index: number) {
     let tempString = stepData[index].curlCommand.toString();
     const curlString = parseCurlCommand(tempString);
     handleCurl(curlString);
@@ -130,7 +138,7 @@ export default function KeyPlayground() {
   return isLoading ? (
     <div>Loading...</div>
   ) : (
-    <div className="flex flex-row w-full">
+    <div className="flex flex-row w-full text-white">
       <div className="flex flex-col w-1/2 h-full scroll-smooth">
         <Accordion type="single" collapsible value={`step${step.toString()}`}>
           <AccordionItem value="step1">
@@ -187,7 +195,7 @@ export default function KeyPlayground() {
                 <div className="flex justify-end">
                   <Button
                     className="lg:w-1/4"
-                    onClick={() => handleClick(1)}
+                    onClick={() => handleButtonClick(1)}
                     variant={"outline"}
                   >
                     Send request
@@ -228,7 +236,7 @@ export default function KeyPlayground() {
                 <div className="flex justify-end">
                   <Button
                     className="lg:w-1/4"
-                    onClick={() => handleClick(2)}
+                    onClick={() => handleButtonClick(2)}
                     variant={"outline"}
                   >
                     Send request
@@ -270,7 +278,7 @@ export default function KeyPlayground() {
                 </p>
                 <CodeBlock className="">{renderString}</CodeBlock>
               </div>
-              <Button onClick={() => handleClick(3)} variant={"outline"}>
+              <Button onClick={() => handleButtonClick(3)} variant={"outline"}>
                 Send request
               </Button>
             </AccordionContent>
@@ -314,7 +322,7 @@ export default function KeyPlayground() {
                 </p>
                 <CodeBlock className="">{renderString}</CodeBlock>
               </div>
-              <Button onClick={() => handleClick(4)} variant={"outline"}>
+              <Button onClick={() => handleButtonClick(4)} variant={"outline"}>
                 Send request
               </Button>
             </AccordionContent>
@@ -353,7 +361,7 @@ export default function KeyPlayground() {
                 </p>
                 <CodeBlock className="">{renderString}</CodeBlock>
               </div>
-              <Button onClick={() => handleClick(5)} variant={"outline"}>
+              <Button onClick={() => handleButtonClick(5)} variant={"outline"}>
                 Send request
               </Button>
             </AccordionContent>
@@ -393,7 +401,7 @@ export default function KeyPlayground() {
                 <CodeBlock className="">{renderString}</CodeBlock>
               </div>
 
-              <Button onClick={() => handleClick(6)} variant={"outline"}>
+              <Button onClick={() => handleButtonClick(6)} variant={"outline"}>
                 Send request
               </Button>
             </AccordionContent>
@@ -433,7 +441,7 @@ export default function KeyPlayground() {
                 <CodeBlock className="">{renderString}</CodeBlock>
               </div>
 
-              <Button onClick={() => handleClick(7)} variant={"outline"}>
+              <Button onClick={() => handleButtonClick(7)} variant={"outline"}>
                 Send request
               </Button>
             </AccordionContent>
@@ -474,7 +482,7 @@ export default function KeyPlayground() {
                 <CodeBlock className="">{renderString}</CodeBlock>
               </div>
 
-              <Button onClick={() => handleClick(8)} variant={"outline"}>
+              <Button onClick={() => handleButtonClick(8)} variant={"outline"}>
                 Send request
               </Button>
             </AccordionContent>
@@ -514,7 +522,7 @@ export default function KeyPlayground() {
                 </p>
                 <CodeBlock className="">{renderString}</CodeBlock>
               </div>
-              <Button onClick={() => handleClick(9)} variant={"outline"}>
+              <Button onClick={() => handleButtonClick(9)} variant={"outline"}>
                 Send request
               </Button>
             </AccordionContent>
@@ -558,7 +566,10 @@ export default function KeyPlayground() {
                 <CodeBlock className="">{renderString}</CodeBlock>
               </div>
               <div className="flex flex-row justify-end">
-                <Button onClick={() => handleClick(10)} variant={"outline"}>
+                <Button
+                  onClick={() => handleButtonClick(10)}
+                  variant={"outline"}
+                >
                   Send request
                 </Button>
               </div>
