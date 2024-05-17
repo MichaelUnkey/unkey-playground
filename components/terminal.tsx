@@ -91,7 +91,6 @@ function Terminal(props: {
       console.log("curl", curl);
     },
     curlCommand: async (curl: any) => {
-      console.log("curlCommand In Terminal ---- ", curl);
       setAllowInput(false);
       setBufferedContent((previous) => (
         <>
@@ -104,8 +103,6 @@ function Terminal(props: {
       ));
     },
     curlResponse: async (response: any) => {
-      console.log("curlResponse", response);
-
       setBufferedContent((previous) => (
         <>
           {previous}
