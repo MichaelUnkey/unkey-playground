@@ -15,6 +15,7 @@ import { useCallback, useEffect, useState } from "react";
 import { HandleCurl } from "../lib/helper";
 import { StepData } from "@/lib/data";
 
+// Fix this types
 type StepDataItem = {
   step: number;
   name: string;
