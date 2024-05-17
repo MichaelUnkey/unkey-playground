@@ -1,8 +1,5 @@
 "use client";
 
-import CodeComponent from "./codeComponent";
-import TerminalProvider from "./terminalProvider";
-import Terminal from "./terminal";
 import {
   Accordion,
   AccordionContent,
@@ -11,74 +8,86 @@ import {
 } from "./ui/accordion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "./ui/button";
-import { useCallback, useEffect, useState } from "react";
-import { StepData } from "@/lib/data";
+import { useEffect, useState } from "react";
 
-export default function PlaygroundComponent(props: {
+export default function PlaygroundAccordion(props: {
   handleClick: (index: number) => void;
+  handleSteps: (index: number) => void;
+  stepData: any;
+  apiId: string | undefined;
+  keyId: string | undefined;
+  key: string | undefined;
 }) {
-  const { handleClick } = props;
-  const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const [step, setStep] = useState<number>(1);
-  const [stepData, setStepData] = useState<any>();
-
-  // Router
+  const [step, setStep] = useState(0);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
-      return params.toString();
-    },
-    [searchParams]
-  );
+  const [apiId, setApiId] = useState("");
+  const [keyId, setKeyId] = useState("");
+  const [key, setKey] = useState("");
+  const [stepData, setStepData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    const data = StepData;
-    setStepData(data);
+    let temp = stepData.forEach(element => {
+      
+    });
+      
+    });
+    setStepData(stepData);
     setIsLoading(false);
-    console.log("Step Data", data);
-  }, []);
-
+  }, [props.stepData]);
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.get("step")
-      ? setStep(parseInt(params.get("step") as string))
-      : setStep(1);
-  }, [pathname, searchParams]);
-
-  async function handleSteps(step: number) {
-    router.push(pathname + "?" + createQueryString("step", step.toString()));
+    setApiId(apiId);
+  }, [props.apiId]);
+  useEffect(() => {
+    setKeyId(keyId);
+  }, [props.keyId]);
+  useEffect(() => {
+    setKey(key);
+  }, [props.key]);
+  function handleClick(index: number) {
+    props.handleClick(index);
   }
-  const AccordionMap = stepData?.map((step: any) => {
-    return (
-      <AccordionItem value={`step${step.step}`}>
-        <AccordionTrigger onFocus={() => handleSteps(step.step)}>
-          {step.name}
-        </AccordionTrigger>
-        <AccordionContent>
-          <div>{step.curlCommand}</div>
-          <Button onClick={() => handleClick(step.step)} variant={"outline"}>
-            Test
-          </Button>
-        </AccordionContent>
-      </AccordionItem>
-    );
-  });
+  function handleSteps(index: number) {
+    props.handleSteps(index);
+  }
   return isLoading ? (
     <div>Loading...</div>
   ) : (
-    <div className="flex flex-row w-full">
-      <div className="flex flex-col w-1/2 h-full scroll-smooth">
+ 
         <Accordion type="single" collapsible value={`step${step.toString()}`}>
-          <AccordionMap />
+          {stepData.map((step: any) => {
+            return (
+              <AccordionItem
+                key={step.step}
+                value={`step${step.step.toString()}`}
+              >
+                <AccordionTrigger>
+                  <div className="flex flex-row justify-between items-center p-4">
+                    <div className="flex flex-col">
+                      <div className="text-lg font-bold">{`Step-${step} ${step.name}`}</div>
+                      <div className="text-sm">{step.blurb}</div>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        handleClick(step.step);
+                      }}
+                      className="bg-blue-500 text-white"
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="p-4">
+                    <pre>{step.curlCommand}</pre>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            );
+          })}
         </Accordion>
-      </div>
-    </div>
+   
   );
 }

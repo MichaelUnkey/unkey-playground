@@ -22,7 +22,6 @@ const urls = {
 export async function HandleCurl(
   curlString: string
 ) {
-  console.log("curlString From HELPER", curlString);
   const res = await GetDataFromString(curlString);
   return JSON.stringify(res);
 }
@@ -39,7 +38,6 @@ export async function GetDataFromString(
     case urls.createKey:
       if (!data.apiId) {return { error: "No API ID" };}
         const createRes = await CreateKeyCommand(data.apiId);
-        console.log(createRes);
         return createRes;
     case urls.getkey:
       if (!params?.keyId) {return { error: "No key ID" };}

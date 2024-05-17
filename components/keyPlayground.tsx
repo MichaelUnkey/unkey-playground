@@ -15,7 +15,7 @@ import { useCallback, useEffect, useState } from "react";
 import { HandleCurl } from "../lib/helper";
 import { StepData } from "@/lib/data";
 
-export default function KeyPlayground(props: any) {
+export default function KeyPlayground() {
   const Data = StepData;
   const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -27,6 +27,7 @@ export default function KeyPlayground(props: any) {
   const [step, setStep] = useState<number>(1);
   const [stepData, setStepData] = useState<any>(Data);
   // Shared Data
+  const timeStamp = Date.now() + 24 * 60 * 60 * 1000;
   const [keyId, setKeyId] = useState<string>("");
   const [keyName, setKeyName] = useState<string>("");
   // Router
@@ -41,7 +42,6 @@ export default function KeyPlayground(props: any) {
     },
     [searchParams]
   );
-  type StepDataType = StepDataItem[];
   type StepDataItem = {
     step: number;
     name: string;
@@ -69,20 +69,21 @@ export default function KeyPlayground(props: any) {
   }
 
   useEffect(() => {
-    //console.log("Step set: ", step);
     handleRender(step);
   }, [step]);
 
   function parseCurlCommand(stepString: string) {
     let tempString = stepString;
-    const timeStamp = Date.now() + 24 * 60 * 60 * 1000;
-    
+
     tempString = tempString.replace("<timeStamp>", timeStamp.toString());
-    if(apiId){
-      tempString = apiId.length > 0 ? tempString.replace("<apiId>", apiId) : tempString;
+    if (apiId) {
+      tempString =
+        apiId.length > 0 ? tempString.replace("<apiId>", apiId) : tempString;
     }
-    tempString = keyId.length > 0 ? tempString.replace("<keyId>", keyId) : tempString;
-    tempString = keyName.length > 0 ? tempString.replace("<key>", keyName) : tempString;
+    tempString =
+      keyId.length > 0 ? tempString.replace("<keyId>", keyId) : tempString;
+    tempString =
+      keyName.length > 0 ? tempString.replace("<key>", keyName) : tempString;
     return tempString;
   }
 
@@ -95,11 +96,8 @@ export default function KeyPlayground(props: any) {
   async function handleCurl(curlString: string) {
     setCurlString(curlString);
     curlString = curlString.replace("--data", "--data-raw");
-    console.log("Curl String", curlString);
-    
     const response = await HandleCurl(curlString);
-    console.log("Response From Playground", response);
-    
+
     if (response) {
       const resJson = JSON.parse(response);
       if (resJson.error) {
@@ -140,40 +138,58 @@ export default function KeyPlayground(props: any) {
               Here you can test out the Unkey API without signing up to get an
               idea of how it works.{" "}
             </p>
+            <p>
+              Directions: Type commands in manualy, copy and paste, or just
+              click the &quot;Send request&quot; button under each step.
+            </p>
             <AccordionTrigger onFocus={() => handleSteps(1)} className="mt-6">
               1. Create Key
             </AccordionTrigger>
             <AccordionContent className="AccordionContent">
               <div className="flex flex-col gap-4 ">
+                <p>{stepData[1].blurb}</p>
                 <p>
-                  Welcome to the Unkey playground. Here you can test out the
-                  Unkey API. Click on 'Next' or step 1 to begin.{" "}
+                  API ID: <span className="my-2 text-violet-400">{apiId}</span>
                 </p>
                 <p>
-                  The first is using the Unkey API at the following:
-                  https://api.unkey.dev/v1/keys.createKey
+                  url:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[1].url}
+                  </span>
+                </p>
+                <p>headers:</p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[1].headers.authorization}
+                  </span>
+                </p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[1].headers.contentType}
+                  </span>
                 </p>
                 <p>
-                  This can be done with a curl command. The bearer token and
-                  apiId are both required. For now we can use some fake values.
-                  In the terminal window paste or type the following curl
-                  command.
+                  method:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[1].method}
+                  </span>
                 </p>
-
-                <p>{`Leave the <token> tag for now. This is normally where you would put your root key. For now we will handle this for you. Everything else you can input youself.`}</p>
+                <p>
+                  Leave the{" "}
+                  <span className="my-2 text-violet-400">&lt;token&gt;</span>{" "}
+                  tag for now. Normally you would put your root key here. We
+                  will handle any rootkey requirements in this playground.
+                </p>
                 <CodeBlock className="">{stepData[1].curlCommand}</CodeBlock>
-
-                {
-                  <div className="flex justify-end">
-                    <Button
-                      className="lg:w-1/4"
-                      onClick={() => handleClick(1)}
-                      variant={"outline"}
-                    >
-                      Do it for me
-                    </Button>
-                  </div>
-                }
+                <div className="flex justify-end">
+                  <Button
+                    className="lg:w-1/4"
+                    onClick={() => handleClick(1)}
+                    variant={"outline"}
+                  >
+                    Send request
+                  </Button>
+                </div>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -182,24 +198,40 @@ export default function KeyPlayground(props: any) {
               2. Get Key
             </AccordionTrigger>
             <AccordionContent>
-              <p>
-                Next we can retrieve a key by its ID. Like before, either use
-                the terminal or the button.
-              </p>
-              <p className="my-4 text-teal-700">{keyId}</p>
-
-              <CodeBlock className="">{renderString}</CodeBlock>
-              {
+              <div className="flex flex-col gap-4 ">
+                <p>{stepData[2].blurb}</p>
+                <p>
+                  keyId: <span className="my-2 text-violet-400">{keyId}</span>
+                </p>
+                <p>
+                  url:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[2].url}
+                  </span>
+                </p>
+                <p>headers:</p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[2].headers.authorization}
+                  </span>
+                </p>
+                <p>
+                  method:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[2].method}
+                  </span>
+                </p>
+                <CodeBlock className="">{renderString}</CodeBlock>
                 <div className="flex justify-end">
                   <Button
                     className="lg:w-1/4"
                     onClick={() => handleClick(2)}
                     variant={"outline"}
                   >
-                    Do it for me
+                    Send request
                   </Button>
                 </div>
-              }
+              </div>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="step3">
@@ -207,15 +239,36 @@ export default function KeyPlayground(props: any) {
               3. Verify Key
             </AccordionTrigger>
             <AccordionContent>
-              <p>
-                use the command of button to verify the key we just got back in
-                the last step. Feel free to do this step a few times. This will
-                give you a few more points on the fancy chart later on.{" "}
-              </p>
-              <CodeBlock className="">{renderString}</CodeBlock>
-
+              <div className="flex flex-col gap-4 ">
+                <p>{stepData[3].blurb}</p>
+                <p>
+                  API ID: <span className="my-2 text-violet-400">{apiId}</span>
+                </p>
+                <p>
+                  keyId: <span className="my-2 text-violet-400">{keyId}</span>
+                </p>
+                <p>
+                  url:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[3].url}
+                  </span>
+                </p>
+                <p>headers:</p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[3].headers.contentType}
+                  </span>
+                </p>
+                <p>
+                  method:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[3].method}
+                  </span>
+                </p>
+                <CodeBlock className="">{renderString}</CodeBlock>
+              </div>
               <Button onClick={() => handleClick(3)} variant={"outline"}>
-                Test
+              Send request
               </Button>
             </AccordionContent>
           </AccordionItem>
@@ -224,121 +277,310 @@ export default function KeyPlayground(props: any) {
               4. Update Key
             </AccordionTrigger>
             <AccordionContent>
-              <CodeBlock className="">{renderString}</CodeBlock>
-              <p>Example</p>
+              <div className="flex flex-col gap-4 ">
+                <p>{stepData[4].blurb}</p>
+                <p>
+                  ownerId:{" "}
+                  <span className="my-2 text-violet-400">user_1234</span>
+                </p>
+                <p>
+                  keyId: <span className="my-2 text-violet-400">{keyId}</span>
+                </p>
+                <p>
+                  url:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[4].url}
+                  </span>
+                </p>
+                <p>headers:</p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[4].headers.authorization}
+                  </span>
+                </p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[4].headers.contentType}
+                  </span>
+                </p>
+                <p>
+                  method:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[4].method}
+                  </span>
+                </p>
+                <CodeBlock className="">{renderString}</CodeBlock>
+              </div>
               <Button onClick={() => handleClick(4)} variant={"outline"}>
-                Test
+              Send request
               </Button>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="step5">
             <AccordionTrigger onFocus={() => handleSteps(5)}>
-              5. Add Expiration
+              5. Verify Key
             </AccordionTrigger>
             <AccordionContent>
-              <p>
-                Same thing again but expiration instead of ownerId and name. The
-                input required is “expires”: UnixTimestampMiliseconds
-              </p>
-              <p>
-                To help help here is a button that will copy the current unix
-                timestamp plus 1 day. Feel free to use your own value if you
-                want.{" "}
-              </p>
-              <CodeBlock className="">{renderString}</CodeBlock>
-              <p>Again we provide a just do the thing button for you. </p>
-
+              <div className="flex flex-col gap-4 ">
+                <p>{stepData[5].blurb}</p>
+                <p>
+                  API ID: <span className="my-2 text-violet-400">{apiId}</span>
+                </p>
+                <p>
+                  Key name:{" "}
+                  <span className="my-2 text-violet-400">{keyName}</span>
+                </p>
+                <p>
+                  url:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[5].url}
+                  </span>
+                </p>
+                <p>headers:</p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[5].headers.contentType}
+                  </span>
+                </p>
+                <p>
+                  method:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[5].method}
+                  </span>
+                </p>
+                <CodeBlock className="">{renderString}</CodeBlock>
+              </div>
               <Button onClick={() => handleClick(5)} variant={"outline"}>
-                Test
+              Send request
               </Button>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="step6">
             <AccordionTrigger onFocus={() => handleSteps(6)}>
-              6. Verify Key
+              6. Update expiration
             </AccordionTrigger>
             <AccordionContent>
-              <p>
-                use the command of button to verify the key we just got back in
-                the last step. Feel free to do this step a few times. This will
-                give you a few more points on the fancy chart later on.{" "}
-              </p>
-
-              <CodeBlock className="">{renderString}</CodeBlock>
+              <div className="flex flex-col gap-4 ">
+                <p>{stepData[6].blurb}</p>
+                <p>
+                  Expiration:{" "}
+                  <span className="my-2 text-violet-400">{timeStamp}</span>
+                </p>
+                <p>
+                  keyId: <span className="my-2 text-violet-400">{keyId}</span>
+                </p>
+                <p>
+                  url:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[6].url}
+                  </span>
+                </p>
+                <p>headers:</p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[6].headers.contentType}
+                  </span>
+                </p>
+                <p>
+                  method:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[6].method}
+                  </span>
+                </p>
+                <CodeBlock className="">{renderString}</CodeBlock>
+              </div>
 
               <Button onClick={() => handleClick(6)} variant={"outline"}>
-                Test
+                Send request
               </Button>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="step7">
             <AccordionTrigger onFocus={() => handleSteps(7)}>
-              7. Show Analytics
+              7. Verify Key
             </AccordionTrigger>
             <AccordionContent>
-              <p>
-                Next we can get some analytics data on this key. This can also
-                be done based on apiId or ownerId. But here we will keep it
-                simple
-              </p>
-              <CodeBlock className="">{renderString}</CodeBlock>
+            <div className="flex flex-col gap-4 ">
+                <p>{stepData[7].blurb}</p>
+                <p>
+                  API ID:{" "}
+                  <span className="my-2 text-violet-400">{apiId}</span>
+                </p>
+                <p>
+                  Key Name: <span className="my-2 text-violet-400">{keyName}</span>
+                </p>
+                <p>
+                  url:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[7].url}
+                  </span>
+                </p>
+                <p>headers:</p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[7].headers.contentType}
+                  </span>
+                </p>
+                <p>
+                  method:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[7].method}
+                  </span>
+                </p>
+                <CodeBlock className="">{renderString}</CodeBlock>
+              </div>
 
               <Button onClick={() => handleClick(7)} variant={"outline"}>
-                Test
+              Send request
               </Button>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="step8">
             <AccordionTrigger onFocus={() => handleSteps(8)}>
-              8. Delete Key
+              8. Verify Key
             </AccordionTrigger>
             <AccordionContent>
-              <p>
-                Lets say for whatever reason you want to revoke access to a key.
-                This can be done using the same updateKey endpoint we have used
-                before. Only this time we will set enabled to false. This will
-                make sure that if the key is used to verify a user it will
-                return <span>UNAUTHORIZED</span>.{" "}
-              </p>
-
-              <CodeBlock className="">{renderString}</CodeBlock>
+            <div className="flex flex-col gap-4 ">
+                <p>{stepData[8].blurb}</p>
+                <p>
+                  keyId: <span className="my-2 text-violet-400">{keyId}</span>
+                </p>
+                <p>
+                  url:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[8].url}
+                  </span>
+                </p>
+                <p>headers:</p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[8].headers.authorization}
+                  </span>
+                </p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[8].headers.contentType}
+                  </span>
+                </p>
+                <p>
+                  method:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[8].method}
+                  </span>
+                </p>
+                <CodeBlock className="">{renderString}</CodeBlock>
+              </div>
 
               <Button onClick={() => handleClick(8)} variant={"outline"}>
-                Test
+              Send request
               </Button>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="step9">
             <AccordionTrigger onFocus={() => handleSteps(9)}>
-              9. Verify Key
+              9. Delete Key
             </AccordionTrigger>
             <AccordionContent>
-              <p>
-                Lets say for whatever reason you want to revoke access to a key.
-                This can be done using the same updateKey endpoint we have used
-                before. Only this time we will set enabled to false. This will
-                make sure that if the key is used to verify a user it will
-                return <span>UNAUTHORIZED</span>.{" "}
-              </p>
-              <CodeBlock className="">{renderString}</CodeBlock>
-
+            <div className="flex flex-col gap-4 ">
+                <p>{stepData[9].blurb}</p>
+                <p>
+                  keyId: <span className="my-2 text-violet-400">{keyId}</span>
+                </p>
+                <p>
+                  url:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[9].url}
+                  </span>
+                </p>
+                <p>headers:</p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[9].headers.authorization}
+                  </span>
+                </p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[9].headers.contentType}
+                  </span>
+                </p>
+                <p>
+                  method:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[9].method}
+                  </span>
+                </p>
+                <CodeBlock className="">{renderString}</CodeBlock>
+              </div>
               <Button onClick={() => handleClick(9)} variant={"outline"}>
-                Test
+              Send request
               </Button>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="step10">
             <AccordionTrigger onFocus={() => handleSteps(10)}>
+              10. Verify Key
+            </AccordionTrigger>
+            <AccordionContent>
+            <div className="flex flex-col gap-4 ">
+                <p>{stepData[10].blurb}</p>
+                <p>
+                  apiId: <span className="my-2 text-violet-400">{apiId}</span>
+                </p>
+                <p>
+                  key: <span className="my-2 text-violet-400">{keyName}</span>
+                </p>
+                <p>
+                  url:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[10].url}
+                  </span>
+                </p>
+                <p>headers:</p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[10].headers.contentType}
+                  </span>
+                </p>
+                <p className="pl-4">
+                  <span className="my-2 text-violet-400">
+                    {stepData[10].headers.contentType}
+                  </span>
+                </p>
+                <p>
+                  method:{" "}
+                  <span className="my-2 text-violet-400">
+                    {stepData[10].method}
+                  </span>
+                </p>
+                <CodeBlock className="">{renderString}</CodeBlock>
+              </div>
+              <div className="flex flex-row justify-end">
+              <Button onClick={() => handleClick(10)} variant={"outline"}>
+              Send request
+              </Button>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="step11">
+            <AccordionTrigger onFocus={() => handleSteps(11)}>
               Sign Up
             </AccordionTrigger>
             <AccordionContent>
               <p>
-                Now that you have seen some of what our platform has to offer.
-                Sign up today and elevate your user management experience!
-              </p>
-              <Button onClick={() => handleClick(10)} variant={"outline"}>
-                Test
+                Like what you see? Sign up for an account to get your own API setup in no time.
+              </p>Learn more: <br/>
+              <div className="flex flex-row justify-end">
+              <a href="https://www.unkey.com/docs/introduction" target="_blank" className="text-violet-400">
+              <Button variant={"secondary"}>
+                Docs
               </Button>
+              </a>
+              <a href="https://www.unkey.com" target="_blank" className="text-violet-400">
+              <Button variant={"default"}>
+                Sign up
+              </Button>
+              </a>
+              </div>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

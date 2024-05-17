@@ -1,15 +1,13 @@
 'use server'
 import { Unkey } from "@unkey/api";
 const rootKey = process.env.UNKEY_ROOT_KEY;
-//console.log("Root Key", rootKey);
 
 //Create Key
 export async function CreateKeyCommand(apiId: string) {
   
   if (!rootKey) {
-    return { key: null, keyId: null, error: "Root Key Not Found" };
+    return { error: "Root Key Not Found" };
   }
-
   const unkey = new Unkey({ rootKey: rootKey });
   const { result, error } = await unkey.keys.create({
     apiId: apiId,
@@ -17,13 +15,10 @@ export async function CreateKeyCommand(apiId: string) {
     enabled: true,
   });
   if (error) {
-    //console.error(error.message);
-    return { key: null, keyId: null, error: error.message };
+    return { error: error.message };
   }
-
   if (!result) {
-    // do not grant access
-    return { key: null, keyId: null, error: "Error creating key" };
+    return { error: "Error creating key" };
   }
   return { key: result.key, keyId: result.keyId };
 }
@@ -31,7 +26,7 @@ export async function CreateKeyCommand(apiId: string) {
 //Verify Key
 export async function VerifyKeyCommand(key: string, apiId: string) {
   if (!rootKey) {
-    return { key: null, keyId: null, error: "Root Key Not Found" };
+    return { error: "Root Key Not Found" };
   }
 
   const unkey = new Unkey({ rootKey: rootKey });
@@ -40,28 +35,25 @@ export async function VerifyKeyCommand(key: string, apiId: string) {
     key: key,
   });
   if (error) {
-    // handle potential network or bad request error
-    // a link to our docs will be in the `error.docs` field
-    //console.error(error.message);
-    return { key: null, keyId: null, error: error.message };
+    return { error: error.message };
   }
 
   if (!result) {
     // do not grant access
-    return { key: null, keyId: null, error: "Error creating key" };
+    return { error: "Error creating key" };
   }
   return result;
 }
 // Get Key
 export async function GetKeyCommand(keyId: string) {
   if (!rootKey) {
-    return "'Root key not found'";
+    return { error: "Root Key Not Found" };
   }
   const unkey = new Unkey({ rootKey: rootKey });
   const { result, error } = await unkey.keys.get({keyId: keyId});
 
   if(error){
-    return error.message;
+    return { error: error.message };
   }
   
   return result;
@@ -76,13 +68,11 @@ export async function UpdateKeyCommand(
   enabled: boolean | undefined
 ) {
   if (!rootKey) {
-    return "'Root key not found'";
+    return { error: "Root Key Not Found" };
   }
   if(!keyId){
-    console.log("No Key ID from UNKEY.ts");
-    
+    return { error:'keyId not found' };
   }
-  console.log("Key ID", keyId);
   
   const unkey = new Unkey({ rootKey: rootKey });
   const { result, error } = await unkey.keys.update({
@@ -94,7 +84,7 @@ export async function UpdateKeyCommand(
   });
 
   if(error){
-    return error.message;
+    return { error: error.message };
   }
   
   return result;
@@ -103,12 +93,12 @@ export async function UpdateKeyCommand(
 // Get Verifications
 export async function GetVerificationsCommand(keyId: string) {
   if (!rootKey) {
-    return "'Root key not found'";
+    return { error: "Root Key Not Found" };
   }
   const unkey = new Unkey({ rootKey: rootKey });
   const { result, error } = await unkey.keys.getVerifications({keyId: keyId});
   if(error){
-    return error.message;
+    return { error: error.message };
   }
   return result;
 
@@ -116,12 +106,12 @@ export async function GetVerificationsCommand(keyId: string) {
 
 export async function DeleteKeyCommand(keyId: string) {
   if (!rootKey) {
-    return "'Root key not found'";
+    return { error: "Root Key Not Found" };
   }
   const unkey = new Unkey({ rootKey: rootKey });
   const { result, error } = await unkey.keys.delete({keyId: keyId});
   if(error){
-    return error.message;
+    return { error: error.message };
   }
   return result;
 }
