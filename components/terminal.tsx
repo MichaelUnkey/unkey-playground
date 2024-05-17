@@ -150,7 +150,7 @@ function Terminal(props: {
       
     },
     curlCommand: async (curl: any) => {
-      console.log("curlCommand", curl);
+      console.log("curlCommand In Terminal ---- ", curl);
       setAllowInput(false);
       setBufferedContent((previous) => (
         <>

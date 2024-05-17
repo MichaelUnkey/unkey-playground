@@ -69,8 +69,7 @@ export async function GetKeyCommand(keyId: string) {
 
 // Update Key
 export async function UpdateKeyCommand(
-  keyId: string, 
-  keyName: string | undefined,
+  keyId: string,
   ownerId: string | undefined,
   metaData: {} | undefined,
   expires: number | undefined, 
@@ -88,11 +87,10 @@ export async function UpdateKeyCommand(
   const unkey = new Unkey({ rootKey: rootKey });
   const { result, error } = await unkey.keys.update({
     keyId: keyId, 
-    name: keyName, 
-    ownerId: ownerId, 
-    meta: metaData, 
-    expires: expires, 
-    enabled: enabled
+    ownerId: ownerId ?? undefined, 
+    meta: metaData ?? undefined, 
+    expires: expires ?? undefined, 
+    enabled: enabled ?? undefined
   });
 
   if(error){

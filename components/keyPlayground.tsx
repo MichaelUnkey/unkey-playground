@@ -1,6 +1,5 @@
 "use client";
 
-import CodeComponent from "./codeComponent";
 import { CodeBlock } from "./ui/codeBlock";
 import TerminalProvider from "./terminalProvider";
 import Terminal from "./terminal";
@@ -17,6 +16,7 @@ import { HandleCurl } from "../lib/helper";
 import { StepData } from "@/lib/data";
 
 export default function KeyPlayground(props: any) {
+  const Data = StepData;
   const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
   const [isLoading, setIsLoading] = useState<boolean>(true);
   // Curl Commands
@@ -25,7 +25,7 @@ export default function KeyPlayground(props: any) {
   const [renderString, setRenderString] = useState<string>("");
   // Step Data
   const [step, setStep] = useState<number>(1);
-  const [stepData, setStepData] = useState<any>();
+  const [stepData, setStepData] = useState<any>(Data);
   // Shared Data
   const [keyId, setKeyId] = useState<string>("");
   const [keyName, setKeyName] = useState<string>("");
@@ -41,19 +41,22 @@ export default function KeyPlayground(props: any) {
     },
     [searchParams]
   );
-
+  type StepDataType = StepDataItem[];
+  type StepDataItem = {
+    step: number;
+    name: string;
+    blurb: string | undefined;
+    curlCommand: string | undefined;
+  };
   useEffect(() => {
     if (isLoading) {
       setIsLoading(true);
-      const data = StepData;
-      setStepData(data);
+      setStepData(Data);
       setStep(1);
       setIsLoading(false);
     }
   }, []);
-  // useEffect(() => {
-  //   setRenderString(parseCurlCommand(stepData[step].curlCommand));
-  // }, [keyId, keyName]);
+
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.get("step")
@@ -63,26 +66,23 @@ export default function KeyPlayground(props: any) {
 
   function handleSteps(step: number) {
     router.push(pathname + "?" + createQueryString("step", step.toString()));
-    //setRenderString(parseCurlCommand(stepData[step].curlCommand));
   }
 
   useEffect(() => {
-    console.log("Step set: ", step);
+    //console.log("Step set: ", step);
     handleRender(step);
   }, [step]);
+
   function parseCurlCommand(stepString: string) {
     let tempString = stepString;
     const timeStamp = Date.now() + 24 * 60 * 60 * 1000;
-    console.log(keyId, keyName, apiId);
-
+    
     tempString = tempString.replace("<timeStamp>", timeStamp.toString());
-
-    tempString = tempString.replace("<apiId>", apiId ?? "<apiId>");
-
-    tempString = tempString.replace("<keyId>", keyId ?? "<keyId>");
-
-    tempString = tempString.replace("<key>", keyName ?? "<key>");
-
+    if(apiId){
+      tempString = apiId.length > 0 ? tempString.replace("<apiId>", apiId) : tempString;
+    }
+    tempString = keyId.length > 0 ? tempString.replace("<keyId>", keyId) : tempString;
+    tempString = keyName.length > 0 ? tempString.replace("<key>", keyName) : tempString;
     return tempString;
   }
 
@@ -90,33 +90,40 @@ export default function KeyPlayground(props: any) {
     let tempString = stepData[index].curlCommand.toString();
     const curlString = parseCurlCommand(tempString);
     handleCurl(curlString);
-    console.log("Handle Click");
   }
- 
+
   async function handleCurl(curlString: string) {
     setCurlString(curlString);
-    const response = await HandleCurl(curlString, keyId !== "" ? keyId : undefined, keyName ?? "");
+    curlString = curlString.replace("--data", "--data-raw");
+    console.log("Curl String", curlString);
+    
+    const response = await HandleCurl(curlString);
+    console.log("Response From Playground", response);
+    
     if (response) {
       const resJson = JSON.parse(response);
-      if (!resJson.error) {
-        setCurlResponse(response);
+      if (resJson.error) {
+        return { error: "error" };
+      }
+      if (step === 1) {
         setKeyId(resJson.keyId);
         setKeyName(resJson.key);
-        handleRender(step + 1);
-        handleSteps(step + 1);
+        stepData[2].curlCommand = parseCurlCommand(stepData[2].curlCommand);
       }
+
+      handleRender(step + 1);
+      handleSteps(step + 1);
+      setCurlResponse(response);
     }
   }
   async function handleTerminalRequest(curlString: string) {
     handleCurl(curlString);
-    console.log("Handle Terminal Submit");
   }
   async function handleRender(index: number) {
     if (stepData) {
       let tempString = stepData[index].curlCommand.toString();
-      const curlString = await parseCurlCommand(tempString);
+      const curlString = parseCurlCommand(tempString);
       setRenderString(curlString);
-      console.log("Handle Render");
     }
   }
   return isLoading ? (
@@ -179,6 +186,8 @@ export default function KeyPlayground(props: any) {
                 Next we can retrieve a key by its ID. Like before, either use
                 the terminal or the button.
               </p>
+              <p className="my-4 text-teal-700">{keyId}</p>
+
               <CodeBlock className="">{renderString}</CodeBlock>
               {
                 <div className="flex justify-end">
@@ -254,7 +263,7 @@ export default function KeyPlayground(props: any) {
                 the last step. Feel free to do this step a few times. This will
                 give you a few more points on the fancy chart later on.{" "}
               </p>
-      
+
               <CodeBlock className="">{renderString}</CodeBlock>
 
               <Button onClick={() => handleClick(6)} variant={"outline"}>
@@ -291,7 +300,7 @@ export default function KeyPlayground(props: any) {
                 make sure that if the key is used to verify a user it will
                 return <span>UNAUTHORIZED</span>.{" "}
               </p>
-       
+
               <CodeBlock className="">{renderString}</CodeBlock>
 
               <Button onClick={() => handleClick(8)} variant={"outline"}>
