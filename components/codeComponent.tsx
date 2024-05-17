@@ -1,8 +1,7 @@
-import { dracula, CodeBlock, CopyBlock } from "react-code-blocks";
+import { dracula, CodeBlock } from "react-code-blocks";
 
 export default function CodeComponent(props: { val: string }) {
   return (
-
     <CodeBlock
       text={props.val}
       language="typescript"
@@ -10,6 +9,5 @@ export default function CodeComponent(props: { val: string }) {
       theme={dracula}
       wrapLongLines={false}
     />
-    
   );
 }

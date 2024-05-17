@@ -15,17 +15,24 @@ import { useCallback, useEffect, useState } from "react";
 import { HandleCurl } from "../lib/helper";
 import { StepData } from "@/lib/data";
 
+type StepDataItem = {
+  step: number;
+  name: string;
+  blurb: string | undefined;
+  curlCommand: string | undefined;
+};
+
 export default function KeyPlayground() {
   const Data = StepData;
   const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
   const [isLoading, setIsLoading] = useState<boolean>(true);
   // Curl Commands
-  const [curlResponse, setCurlResponse] = useState<any>("");
+  const [curlResponse, setCurlResponse] = useState<string>("");
   const [curlString, setCurlString] = useState<string>("");
   const [renderString, setRenderString] = useState<string>("");
   // Step Data
   const [step, setStep] = useState<number>(1);
-  const [stepData, setStepData] = useState<any>(Data);
+  const [stepData, setStepData] = useState<StepDataItem[]>(Data);
   // Shared Data
   const timeStamp = Date.now() + 24 * 60 * 60 * 1000;
   const [keyId, setKeyId] = useState<string>("");
@@ -34,20 +41,16 @@ export default function KeyPlayground() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
   const createQueryString = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.set(name, value);
       return params.toString();
     },
-    [searchParams]
+    [searchParams],
   );
-  type StepDataItem = {
-    step: number;
-    name: string;
-    blurb: string | undefined;
-    curlCommand: string | undefined;
-  };
+
   useEffect(() => {
     if (isLoading) {
       setIsLoading(true);
@@ -70,7 +73,7 @@ export default function KeyPlayground() {
 
   useEffect(() => {
     handleRender(step);
-  }, [step]);
+  }, [handleRender, step]);
 
   function parseCurlCommand(stepString: string) {
     let tempString = stepString;
@@ -268,7 +271,7 @@ export default function KeyPlayground() {
                 <CodeBlock className="">{renderString}</CodeBlock>
               </div>
               <Button onClick={() => handleClick(3)} variant={"outline"}>
-              Send request
+                Send request
               </Button>
             </AccordionContent>
           </AccordionItem>
@@ -312,7 +315,7 @@ export default function KeyPlayground() {
                 <CodeBlock className="">{renderString}</CodeBlock>
               </div>
               <Button onClick={() => handleClick(4)} variant={"outline"}>
-              Send request
+                Send request
               </Button>
             </AccordionContent>
           </AccordionItem>
@@ -351,7 +354,7 @@ export default function KeyPlayground() {
                 <CodeBlock className="">{renderString}</CodeBlock>
               </div>
               <Button onClick={() => handleClick(5)} variant={"outline"}>
-              Send request
+                Send request
               </Button>
             </AccordionContent>
           </AccordionItem>
@@ -400,14 +403,14 @@ export default function KeyPlayground() {
               7. Verify Key
             </AccordionTrigger>
             <AccordionContent>
-            <div className="flex flex-col gap-4 ">
+              <div className="flex flex-col gap-4 ">
                 <p>{stepData[7].blurb}</p>
                 <p>
-                  API ID:{" "}
-                  <span className="my-2 text-violet-400">{apiId}</span>
+                  API ID: <span className="my-2 text-violet-400">{apiId}</span>
                 </p>
                 <p>
-                  Key Name: <span className="my-2 text-violet-400">{keyName}</span>
+                  Key Name:{" "}
+                  <span className="my-2 text-violet-400">{keyName}</span>
                 </p>
                 <p>
                   url:{" "}
@@ -431,7 +434,7 @@ export default function KeyPlayground() {
               </div>
 
               <Button onClick={() => handleClick(7)} variant={"outline"}>
-              Send request
+                Send request
               </Button>
             </AccordionContent>
           </AccordionItem>
@@ -440,7 +443,7 @@ export default function KeyPlayground() {
               8. Verify Key
             </AccordionTrigger>
             <AccordionContent>
-            <div className="flex flex-col gap-4 ">
+              <div className="flex flex-col gap-4 ">
                 <p>{stepData[8].blurb}</p>
                 <p>
                   keyId: <span className="my-2 text-violet-400">{keyId}</span>
@@ -472,7 +475,7 @@ export default function KeyPlayground() {
               </div>
 
               <Button onClick={() => handleClick(8)} variant={"outline"}>
-              Send request
+                Send request
               </Button>
             </AccordionContent>
           </AccordionItem>
@@ -481,7 +484,7 @@ export default function KeyPlayground() {
               9. Delete Key
             </AccordionTrigger>
             <AccordionContent>
-            <div className="flex flex-col gap-4 ">
+              <div className="flex flex-col gap-4 ">
                 <p>{stepData[9].blurb}</p>
                 <p>
                   keyId: <span className="my-2 text-violet-400">{keyId}</span>
@@ -512,7 +515,7 @@ export default function KeyPlayground() {
                 <CodeBlock className="">{renderString}</CodeBlock>
               </div>
               <Button onClick={() => handleClick(9)} variant={"outline"}>
-              Send request
+                Send request
               </Button>
             </AccordionContent>
           </AccordionItem>
@@ -521,7 +524,7 @@ export default function KeyPlayground() {
               10. Verify Key
             </AccordionTrigger>
             <AccordionContent>
-            <div className="flex flex-col gap-4 ">
+              <div className="flex flex-col gap-4 ">
                 <p>{stepData[10].blurb}</p>
                 <p>
                   apiId: <span className="my-2 text-violet-400">{apiId}</span>
@@ -555,9 +558,9 @@ export default function KeyPlayground() {
                 <CodeBlock className="">{renderString}</CodeBlock>
               </div>
               <div className="flex flex-row justify-end">
-              <Button onClick={() => handleClick(10)} variant={"outline"}>
-              Send request
-              </Button>
+                <Button onClick={() => handleClick(10)} variant={"outline"}>
+                  Send request
+                </Button>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -567,26 +570,31 @@ export default function KeyPlayground() {
             </AccordionTrigger>
             <AccordionContent>
               <p>
-                Like what you see? Sign up for an account to get your own API setup in no time.
-              </p>Learn more: <br/>
+                Like what you see? Sign up for an account to get your own API
+                setup in no time.
+              </p>
+              Learn more: <br />
               <div className="flex flex-row justify-end">
-              <a href="https://www.unkey.com/docs/introduction" target="_blank" className="text-violet-400">
-              <Button variant={"secondary"}>
-                Docs
-              </Button>
-              </a>
-              <a href="https://www.unkey.com" target="_blank" className="text-violet-400">
-              <Button variant={"default"}>
-                Sign up
-              </Button>
-              </a>
+                <a
+                  href="https://www.unkey.com/docs/introduction"
+                  target="_blank"
+                  className="text-violet-400"
+                >
+                  <Button variant={"secondary"}>Docs</Button>
+                </a>
+                <a
+                  href="https://www.unkey.com"
+                  target="_blank"
+                  className="text-violet-400"
+                >
+                  <Button variant={"default"}>Sign up</Button>
+                </a>
               </div>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
       </div>
       <div className="flex flex-col w-1/2 h-full p-6">
-        {/* <Link href="/?step=5">CLick me</Link> */}
         <TerminalProvider>
           <Terminal
             sendRequest={(curl: string) => handleTerminalRequest(curl)}

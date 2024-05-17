@@ -1,5 +1,4 @@
 import KeyPlayground from "@/components/keyPlayground";
-import { Suspense } from "react";
 
 export default function Home() {
   return (
@@ -9,9 +8,7 @@ export default function Home() {
           <h2 className="text-2xl">Unkey Playground</h2>
         </div>
         <div className="flex w-full mt-8 h-screen bg-gray-900 p-8 rounded-2xl ring-4 ring-purple-600">
-         
-            <KeyPlayground className="" />
-         
+          <KeyPlayground />
         </div>
       </div>
     </div>

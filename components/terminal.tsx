@@ -31,11 +31,9 @@ function Terminal(props: {
     if (response !== props.response) {
       setResponse(props.response);
       commands.curlResponse(props.response);
-      
     }
   }, [props.response]);
 
- 
   const commands = {
     help: (
       <span>
@@ -86,68 +84,11 @@ function Terminal(props: {
     toggle_control_buttons: () => {
       setControlButtons(!controlButtons);
     },
-
-    evaluate_math_expression: async (expr: any) => {
-      const response = await fetch(
-        `https://api.mathjs.org/v4/?expr=${encodeURIComponent(expr)}`
-      );
-      return await response.text();
-    },
-
-    wait: async (timeout: any) => {
-      setTemporaryContent("Waiting...");
-      await new Promise((resolve) =>
-        setTimeout(() => {
-          resolve(void 0);
-        }, parseInt(timeout) * 1000)
-      );
-      return "Over!";
-    },
-
-    count_to: async (nb: any) => {
-      await setTemporaryContent("Counting...");
-      nb = parseInt(nb);
-      await Promise.all(
-        new Array(nb).fill({}).map(
-          (value, index) =>
-            new Promise((resolve) => {
-              const timer = setTimeout(() => {
-                setBufferedContent((previous) => (
-                  <>
-                    {previous}
-                    <span>{index + 1}</span>
-                    {index + 1 < nb ? <br /> : ""}
-                  </>
-                ));
-                clearTimeout(timer);
-                resolve(void 0);
-              }, index * 1000);
-            })
-        )
-      );
-      return (
-        <>
-          <br />
-          Finished
-        </>
-      );
-    },
-    test: async (args: any) => {
-      setBufferedContent((previous) => (
-        <>
-          {previous}
-          <span>Buffered</span>
-          {<br />}
-        </>
-      ));
-    },
     curl: async (curl: any) => {
       setAllowInput(false);
       setCurl(curl);
       props.sendRequest(curl);
       console.log("curl", curl);
-
-      
     },
     curlCommand: async (curl: any) => {
       console.log("curlCommand In Terminal ---- ", curl);
@@ -155,20 +96,21 @@ function Terminal(props: {
       setBufferedContent((previous) => (
         <>
           {previous}
-          <span>--------------------------</span><br />
+          <span>--------------------------</span>
+          <br />
           <span>{curl}</span>
           {<br />}
         </>
       ));
-      
     },
     curlResponse: async (response: any) => {
       console.log("curlResponse", response);
-      
+
       setBufferedContent((previous) => (
         <>
           {previous}
-          <span>--------------------------</span><br />
+          <span>--------------------------</span>
+          <br />
           <span>{response}</span>
           {<br />}
         </>
