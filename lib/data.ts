@@ -1,15 +1,40 @@
 const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
-export const StepData = [
+if (!apiId) {
+  throw new Error("Missing apiId");
+}
+export type stepDataType = {
+  [key: number]: {
+    step: number;
+    apiId: string | undefined;
+    name: string;
+    url: string | undefined;
+    headers:
+      | {
+          authorization: string | undefined;
+          contentType: string | undefined;
+        }
+      | undefined;
+    method: string | undefined;
+    blurb: string | undefined;
+    curlCommand: string | undefined;
+  };
+};
+
+export const data: stepDataType = [
   {
     step: 0,
     apiId: apiId,
     name: "Welcome",
+    url: undefined,
+    headers: undefined,
+    method: undefined,
     blurb:
       "Welcome to the Unkey playground. Here you can test out the Unkey API. Click on 'Next' or step 1 to begin.",
-    curlCommand: "",
+    curlCommand: undefined,
   },
   {
     step: 1,
+    apiId: undefined,
     name: "Create Key",
     url: "https://api.unkey.dev/v1/keys.createKey",
     headers: {
@@ -27,6 +52,7 @@ export const StepData = [
   },
   {
     step: 2,
+    apiId: undefined,
     name: "Get Key",
     url: "https://api.unkey.dev/v1/keys.getKey",
     headers: {
@@ -42,10 +68,12 @@ export const StepData = [
   },
   {
     step: 3,
+    apiId: undefined,
     name: "Verify Key",
     url: "https://api.unkey.dev/v1/keys.verifyKey",
     headers: {
       contentType: "Content-Type: application/json",
+      authorization: undefined,
     },
     method: "POST",
     blurb:
@@ -57,6 +85,7 @@ export const StepData = [
   },
   {
     step: 4,
+    apiId: undefined,
     name: "Update ownerId",
     url: "https://api.unkey.dev/v1/keys.updateKey",
     headers: {
@@ -73,10 +102,12 @@ export const StepData = [
   },
   {
     step: 5,
+    apiId: undefined,
     name: "Verify Key",
     url: "https://api.unkey.dev/v1/keys.verifyKey",
     headers: {
       contentType: "Content-Type: application/json",
+      authorization: undefined,
     },
     method: "POST",
     blurb: "",
@@ -87,6 +118,7 @@ export const StepData = [
   },
   {
     step: 6,
+    apiId: undefined,
     name: "Update expiration",
     url: "https://api.unkey.dev/v1/keys.updateKey",
     headers: {
@@ -103,10 +135,12 @@ export const StepData = [
   },
   {
     step: 7,
+    apiId: undefined,
     name: "Verify Key",
     url: "https://api.unkey.dev/v1/keys.verifyKey",
     headers: {
       contentType: "Content-Type: application/json",
+      authorization: undefined,
     },
     method: "POST",
     blurb: "",
@@ -117,6 +151,7 @@ export const StepData = [
   },
   {
     step: 8,
+    apiId: undefined,
     name: "Show Analytics",
     url: "https://api.unkey.dev/v1/keys.getVerifications",
     headers: {
@@ -131,6 +166,7 @@ export const StepData = [
   },
   {
     step: 9,
+    apiId: undefined,
     name: "Delete Key",
     url: "https://api.unkey.dev/v1/keys.deleteKey",
     headers: {
@@ -146,10 +182,12 @@ export const StepData = [
   },
   {
     step: 10,
+    apiId: undefined,
     name: "Verify Key",
     url: "https://api.unkey.dev/v1/keys.verifyKey",
     headers: {
       contentType: "Content-Type: application/json",
+      authorization: undefined,
     },
     method: "POST",
     blurb: "",
@@ -160,8 +198,13 @@ export const StepData = [
   },
   {
     step: 11,
+    apiId: undefined,
     name: "Sign up",
-    blurb: "",
-    curlCommand: "",
+    url: undefined,
+    headers: undefined,
+    method: undefined,
+    blurb:
+      "Like what you see? Sign up for an account to get your own API setup in no time.",
+    curlCommand: undefined,
   },
 ];

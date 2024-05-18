@@ -12,38 +12,21 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "./ui/button";
 import { useCallback, useEffect, useState } from "react";
-import { HandleCurl } from "../lib/helper";
-import { StepData } from "@/lib/data";
-
-// Fix this types
-type StepDataItem = {
-  step: number;
-  name: string;
-  blurb: string | undefined;
-  curlCommand: string | undefined;
-  method: string | undefined;
-  headers:
-    | {
-        authorization: string | undefined;
-        contentType: string | undefined;
-      }
-    | undefined;
-  url: string | undefined;
-};
+import { handleCurlServer } from "../lib/helper";
+import {type stepDataType, data } from "@/lib/data";
 
 export default function KeyPlayground() {
-  const Data = StepData;
+
   const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [stepData, setStepData] = useState<stepDataType>(data);
   // Curl Commands
   const [curlResponse, setCurlResponse] = useState<string>("");
   const [curlString, setCurlString] = useState<string>("");
   const [renderString, setRenderString] = useState<string>("");
   // Step Data
   const [step, setStep] = useState<number>(1);
-  const [stepData, setStepData] = useState<StepDataItem[]>(Data);
   // Shared Data
-  const timeStamp = Date.now() + 24 * 60 * 60 * 1000;
+  const [timeStamp, setTimStamp]= useState<number>(Date.now() + 24 * 60 * 60 * 1000);
   const [keyId, setKeyId] = useState<string>("");
   const [keyName, setKeyName] = useState<string>("");
   // Router
@@ -60,14 +43,6 @@ export default function KeyPlayground() {
     [searchParams],
   );
 
-  useEffect(() => {
-    if (isLoading) {
-      setIsLoading(true);
-      setStepData(Data);
-      setStep(1);
-      setIsLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -100,7 +75,7 @@ export default function KeyPlayground() {
   }
 
   async function handleButtonClick(index: number) {
-    let tempString = stepData[index].curlCommand.toString();
+    let tempString = stepData[index]?.curlCommand ?? "";
     const curlString = parseCurlCommand(tempString);
     handleCurl(curlString);
   }
@@ -108,22 +83,23 @@ export default function KeyPlayground() {
   async function handleCurl(curlString: string) {
     setCurlString(curlString);
     curlString = curlString.replace("--data", "--data-raw");
-    const response = await HandleCurl(curlString);
-
+    const response = await handleCurlServer(curlString);
     if (response) {
-      const resJson = JSON.parse(response);
+      const resJson = JSON.parse(JSON.stringify(response));
       if (resJson.error) {
-        return { error: "error" };
+        setCurlResponse(JSON.stringify(response.error));
+        return;
       }
+      const result = resJson.result;
       if (step === 1) {
-        setKeyId(resJson.keyId);
-        setKeyName(resJson.key);
-        stepData[2].curlCommand = parseCurlCommand(stepData[2].curlCommand);
+        setKeyId(result.keyId);
+        setKeyName(result.key);
+        stepData[2].curlCommand = parseCurlCommand(stepData[2].curlCommand ?? "");
       }
 
       handleRender(step + 1);
       handleSteps(step + 1);
-      setCurlResponse(response);
+      setCurlResponse(JSON.stringify(result));
     }
   }
   async function handleTerminalRequest(curlString: string) {
@@ -131,16 +107,16 @@ export default function KeyPlayground() {
   }
   async function handleRender(index: number) {
     if (stepData) {
-      let tempString = stepData[index].curlCommand.toString();
+      let tempString = stepData[index].curlCommand ?? "";
       const curlString = parseCurlCommand(tempString);
       setRenderString(curlString);
     }
   }
-  return isLoading ? (
+  return !stepData ? (
     <div>Loading...</div>
   ) : (
     <div className="flex flex-row w-full text-white">
-      <div className="flex flex-col w-1/2 h-full scroll-smooth">
+      <div className="flex flex-col w-1/2 h-full scroll-smooth overflow-hidden">
         <Accordion type="single" collapsible value={`step${step.toString()}`}>
           <AccordionItem value="step1">
             <p className="text-center text-lg">
@@ -172,12 +148,12 @@ export default function KeyPlayground() {
                 <p>headers:</p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[1].headers.authorization}
+                    {stepData[1]?.headers?.authorization}
                   </span>
                 </p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[1].headers.contentType}
+                    {stepData[1]?.headers?.contentType}
                   </span>
                 </p>
                 <p>
@@ -224,7 +200,7 @@ export default function KeyPlayground() {
                 <p>headers:</p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[2].headers.authorization}
+                    {stepData[2]?.headers?.authorization}
                   </span>
                 </p>
                 <p>
@@ -268,7 +244,7 @@ export default function KeyPlayground() {
                 <p>headers:</p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[3].headers.contentType}
+                    {stepData[3]?.headers?.contentType}
                   </span>
                 </p>
                 <p>
@@ -307,12 +283,12 @@ export default function KeyPlayground() {
                 <p>headers:</p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[4].headers.authorization}
+                    {stepData[4]?.headers?.authorization}
                   </span>
                 </p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[4].headers.contentType}
+                    {stepData[4]?.headers?.contentType}
                   </span>
                 </p>
                 <p>
@@ -351,7 +327,7 @@ export default function KeyPlayground() {
                 <p>headers:</p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[5].headers.contentType}
+                    {stepData[5]?.headers?.contentType}
                   </span>
                 </p>
                 <p>
@@ -390,7 +366,7 @@ export default function KeyPlayground() {
                 <p>headers:</p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[6].headers.contentType}
+                    {stepData[6]?.headers?.contentType}
                   </span>
                 </p>
                 <p>
@@ -430,7 +406,7 @@ export default function KeyPlayground() {
                 <p>headers:</p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[7].headers.contentType}
+                    {stepData[7]?.headers?.contentType}
                   </span>
                 </p>
                 <p>
@@ -466,12 +442,12 @@ export default function KeyPlayground() {
                 <p>headers:</p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[8].headers.authorization}
+                    {stepData[8]?.headers?.authorization}
                   </span>
                 </p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[8].headers.contentType}
+                    {stepData[8]?.headers?.contentType}
                   </span>
                 </p>
                 <p>
@@ -507,12 +483,12 @@ export default function KeyPlayground() {
                 <p>headers:</p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[9].headers.authorization}
+                    {stepData[9]?.headers?.authorization}
                   </span>
                 </p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[9].headers.contentType}
+                    {stepData[9]?.headers?.contentType}
                   </span>
                 </p>
                 <p>
@@ -550,12 +526,12 @@ export default function KeyPlayground() {
                 <p>headers:</p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[10].headers.contentType}
+                    {stepData[10]?.headers?.contentType}
                   </span>
                 </p>
                 <p className="pl-4">
                   <span className="my-2 text-violet-400">
-                    {stepData[10].headers.contentType}
+                    {stepData[10]?.headers?.contentType}
                   </span>
                 </p>
                 <p>
@@ -582,8 +558,7 @@ export default function KeyPlayground() {
             </AccordionTrigger>
             <AccordionContent>
               <p>
-                Like what you see? Sign up for an account to get your own API
-                setup in no time.
+                {stepData[11]?.blurb ?? "Sign up for an account to get started."}
               </p>
               Learn more: <br />
               <div className="flex flex-row justify-end">

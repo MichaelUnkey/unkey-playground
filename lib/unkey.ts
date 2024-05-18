@@ -4,7 +4,6 @@ const rootKey = process.env.UNKEY_ROOT_KEY;
 
 //Create Key
 export async function CreateKeyCommand(apiId: string) {
-  
   if (!rootKey) {
     return { error: "Root Key Not Found" };
   }
@@ -14,13 +13,9 @@ export async function CreateKeyCommand(apiId: string) {
     byteLength: 16,
     enabled: true,
   });
-  if (error) {
-    return { error: error.message };
-  }
-  if (!result) {
-    return { error: "Error creating key" };
-  }
-  return { key: result.key, keyId: result.keyId };
+  const response = {result, error};
+
+  return response;
 }
 
 //Verify Key
@@ -28,21 +23,14 @@ export async function VerifyKeyCommand(key: string, apiId: string) {
   if (!rootKey) {
     return { error: "Root Key Not Found" };
   }
-
   const unkey = new Unkey({ rootKey: rootKey });
   const { result, error } = await unkey.keys.verify({
     apiId: apiId,
     key: key,
   });
-  if (error) {
-    return { error: error.message };
-  }
+  const response = {result, error};
 
-  if (!result) {
-    // do not grant access
-    return { error: "Error creating key" };
-  }
-  return result;
+  return response;
 }
 // Get Key
 export async function GetKeyCommand(keyId: string) {
@@ -51,12 +39,9 @@ export async function GetKeyCommand(keyId: string) {
   }
   const unkey = new Unkey({ rootKey: rootKey });
   const { result, error } = await unkey.keys.get({keyId: keyId});
+  const response = {result, error};
 
-  if(error){
-    return { error: error.message };
-  }
-  
-  return result;
+  return response;
 }
 
 // Update Key
@@ -70,10 +55,6 @@ export async function UpdateKeyCommand(
   if (!rootKey) {
     return { error: "Root Key Not Found" };
   }
-  if(!keyId){
-    return { error:'keyId not found' };
-  }
-  
   const unkey = new Unkey({ rootKey: rootKey });
   const { result, error } = await unkey.keys.update({
     keyId: keyId, 
@@ -83,11 +64,9 @@ export async function UpdateKeyCommand(
     enabled: enabled ?? undefined
   });
 
-  if(error){
-    return { error: error.message };
-  }
-  
-  return result;
+  const response = {result, error};
+
+  return response;
 }
 
 // Get Verifications
@@ -97,11 +76,9 @@ export async function GetVerificationsCommand(keyId: string) {
   }
   const unkey = new Unkey({ rootKey: rootKey });
   const { result, error } = await unkey.keys.getVerifications({keyId: keyId});
-  if(error){
-    return { error: error.message };
-  }
-  return result;
+  const response = {result, error};
 
+  return response;
 }
 
 export async function DeleteKeyCommand(keyId: string) {
@@ -110,8 +87,7 @@ export async function DeleteKeyCommand(keyId: string) {
   }
   const unkey = new Unkey({ rootKey: rootKey });
   const { result, error } = await unkey.keys.delete({keyId: keyId});
-  if(error){
-    return { error: error.message };
-  }
-  return result;
+  const response = {result, error};
+
+  return response;
 }
