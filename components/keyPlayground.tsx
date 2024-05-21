@@ -123,7 +123,7 @@ const [timeStamp, setTimeStamp] = useState<number>(0);
   return !stepData ? (
     <div>Loading...</div>
   ) : (
-    <div className="text-white/60">
+    <div className="flex flex-col text-white/60">
       {Step1(step, apiId ?? "", stepData, handleButtonClick)}
       {Step2(step, keyId, stepData, renderString, handleButtonClick)}
       {Step3(
