@@ -49,11 +49,7 @@ function Terminal(props: {
         bar. <br />
         <strong>toggle_control_buttons</strong> - Hides / Display the top
         buttons on control bar. <br />
-        <strong>evaluate_math_expression &lt;EXPR&gt;</strong> - Evaluates a
-        mathematical expression (eg, <strong>4*4</strong>) by hitting a public
-        API, api.mathjs.org. <br />
-        <strong>wait &lt;TIME&gt;</strong> - Wait for TIME (seconds). <br />
-        <strong>count_to &lt;NUM&gt;</strong> Count from 1 to NUM (integer).
+        <strong>curl</strong> - Sends a curl request. <br />
       </span>
     ),
 
@@ -85,6 +81,7 @@ function Terminal(props: {
       setControlButtons(!controlButtons);
     },
     curl: async (curl: any) => {
+      if(curl === "") return "Please enter a valid curl command";
       setAllowInput(false);
       setCurl(curl);
       props.sendRequest(curl);
@@ -103,6 +100,7 @@ function Terminal(props: {
       ));
     },
     curlResponse: async (response: any) => {
+      
       setBufferedContent((previous) => (
         <>
           {previous}
@@ -123,12 +121,23 @@ function Terminal(props: {
   );
 
   return (
-    <div className="h-[1000px]">
       <ReactTerminal
+        className="h-64"
+        //scrollToBottom={true}
+        themes={{
+          "my-custom-theme": {
+            themeBGColor: "#272B36",
+            themeToolbarColor: "#DBDBDB",
+            themeColor: "#FFFEFC",
+            themePromptColor: "#a917a8",
+            
+          }
+        }}
+        theme="my-custom-theme"
         enableInput={allowInput}
         setInput={"Input"}
         prompt={prompt}
-        theme={theme}
+        //theme={theme}
         showControlBar={controlBar}
         showControlButtons={controlButtons}
         welcomeMessage={welcomeMessage}
@@ -137,7 +146,6 @@ function Terminal(props: {
           return `${command} passed on to default handler with arguments ${commandArguments}`;
         }}
       />
-    </div>
   );
 }
 

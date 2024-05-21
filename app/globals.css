@@ -16,6 +16,15 @@
   }
 }
 
+/* Hide scrollbar for Chrome, Safari and Opera */
+.section-title-heading-gradient {
+  background: linear-gradient(86deg,
+      #fff 27.24%,
+      rgba(255, 255, 255, 0.4) 66.97%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
@@ -30,34 +39,7 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
   
 }
 
-
-.AccordionContent {
-  overflow: hidden;
-}
-.AccordionContent[data-state='open'] {
-  animation: slideDown 3000ms ease-in ease-out;
-}
-.AccordionContent[data-state='closed'] {
-  animation: slideUp 3000ms ease-in ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    height: 0;
-  }
-  to {
-    height: 100%;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    height: 0;
-  }
-  to {
-    height: 100%;
-  }
-}

@@ -41,16 +41,16 @@ export function CodeBlock({ className, children }: any) {
       </div>
       <Highlight
         theme={darkTheme}
-        code={children}
+        code={children.trim()}
         language={className?.replace(/language-/, "") || "jsx"}
       >
         {({ tokens, getLineProps, getTokenProps }) => {
           return (
-            <div className="pt-0 pb-5 mt-0 overflow-x-auto leading-7 bg-transparent border-none rounded-none">
+            <div key="mainSection" className="pt-0 pb-5 mt-0 overflow-x-auto leading-7 bg-transparent border-none rounded-none">
               {tokens.map((line, i) => {
                 // if the last line is empty, don't render it
                 if (i === tokens.length - 1 && line[0].empty === true) {
-                  return <></>;
+                  return ;
                 }
                 return (
                   <pre
@@ -58,7 +58,7 @@ export function CodeBlock({ className, children }: any) {
                     key={`${line}-${i}`}
                     {...getLineProps({ line })}
                   >
-                    <span className="pl-4 pr-8 text-center text-white/20">{i + 1}</span>
+                    <span key={`${line}-${i}`} className="pl-4 pr-8 text-center text-white/20">{i + 1}</span>
                     {line.map((token, key) => (
                       <span key={`${key}-${token}`} {...getTokenProps({ token })} />
                     ))}

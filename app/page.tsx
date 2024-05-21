@@ -2,14 +2,12 @@ import KeyPlayground from "@/components/keyPlayground";
 
 export default function Home() {
   return (
-    <div className="flex flex-col mx-auto w-full justify-center">
-      <div className="flex flex-col mx-auto w-full justify-center max-w-[1440px]">
-        <div className="mt-32">
-          <h2 className="text-2xl">Unkey Playground</h2>
-        </div>
-        <div className="flex w-full mt-8 h-screen bg-gray-900 p-8 rounded-2xl ring-4 ring-purple-600">
-          <KeyPlayground />
-        </div>
+    <div className="flex flex-col w-full justify-center">
+      <div className="mx-auto w-full justify-center max-w-[1440px]">
+        <h1 className="section-title-heading-gradient max-sm:mx-6 max-sm:text-4xl font-medium text-[4rem] leading-[4rem] max-w-xl text-left mt-16 py-2">
+          Unkey API Playground
+        </h1>
+        <KeyPlayground />
       </div>
     </div>
   );
