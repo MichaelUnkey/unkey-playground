@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "turbo run dev",
-    "build": "pnpm turbo run build",
-    "start": "pnpm run dev",
+    "build": "pnpm  run build",
     "lint": "next lint"
   },
   "dependencies": {
