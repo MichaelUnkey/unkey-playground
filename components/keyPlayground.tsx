@@ -120,7 +120,7 @@ export default function KeyPlayground() {
         <Accordion type="single" collapsible value={`step${step.toString()}`}>
           <AccordionItem value="step1">
             <p className="text-center text-lg">
-              Welcome to the Unkey playground.
+              Welcome to the Unkey playground Old Layout.
             </p>
             <p className="text-center text-lg mt-2">
               Here you can test out the Unkey API without signing up to get an
