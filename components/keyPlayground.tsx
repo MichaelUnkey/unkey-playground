@@ -26,42 +26,49 @@ export default function KeyPlayground() {
   // Step Data
   const [step, setStep] = useState<number>(1);
   // Shared Data
-  const [timeStamp, setTimStamp]= useState<number>(Date.now() + 24 * 60 * 60 * 1000);
+const [timeStamp, setTimeStamp] = useState<number>(0);
   const [keyId, setKeyId] = useState<string>("");
   const [keyName, setKeyName] = useState<string>("");
   // Router
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
-      return params.toString();
-    },
-    [searchParams],
-  );
+  // const router = useRouter();
+  // const pathname = usePathname();
+  // const searchParams = useSearchParams();
+  const [isMounted, setIsMounted] = useState(false);
+  // const createQueryString = useCallback(
+  //   (name: string, value: string) => {
+      
+  //     const params = new URLSearchParams(searchParams.toString());
+  //     params.set(name, value);
+  //     return params.toString();
+  //   },
+  //   [searchParams]
+  // );
 
 
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.get("step")
-      ? setStep(parseInt(params.get("step") as string))
-      : setStep(1);
-  }, [pathname, searchParams]);
+    if(!isMounted) {
+      setTimeStamp(Date.now() + 24 * 60 * 60 * 1000);
+    };
+    setIsMounted(true);
+  }, [isMounted]);
+
+  
+  // useEffect(() => {
+  //   const params = new URLSearchParams(searchParams.toString());
+  //   params.get("step")
+  //     ? setStep(parseInt(params.get("step") as string))
+  //     : setStep(1);
+  // }, [pathname, searchParams]);
 
   function handleSteps(step: number) {
-    router.push(pathname + "?" + createQueryString("step", step.toString()));
+    setStep(step);
   }
 
-  useEffect(() => {
-    handleRender(step);
-  }, [handleRender, step]);
+ 
 
-  function parseCurlCommand(stepString: string) {
+  const parseCurlCommand = useCallback((stepString: string) => {
     let tempString = stepString;
-
+    
     tempString = tempString.replace("<timeStamp>", timeStamp.toString());
     if (apiId) {
       tempString =
@@ -72,7 +79,7 @@ export default function KeyPlayground() {
     tempString =
       keyName.length > 0 ? tempString.replace("<key>", keyName) : tempString;
     return tempString;
-  }
+  }, [apiId, keyId, keyName, timeStamp]);
 
   async function handleButtonClick(index: number) {
     let tempString = stepData[index]?.curlCommand ?? "";
@@ -94,7 +101,9 @@ export default function KeyPlayground() {
       if (step === 1) {
         setKeyId(result.keyId);
         setKeyName(result.key);
-        stepData[2].curlCommand = parseCurlCommand(stepData[2].curlCommand ?? "");
+        stepData[2].curlCommand = parseCurlCommand(
+          stepData[2].curlCommand ?? ""
+        );
       }
 
       handleRender(step + 1);
@@ -105,13 +114,18 @@ export default function KeyPlayground() {
   async function handleTerminalRequest(curlString: string) {
     handleCurl(curlString);
   }
-  async function handleRender(index: number) {
+  const handleRender = useCallback((index: number) => {
     if (stepData) {
       let tempString = stepData[index].curlCommand ?? "";
       const curlString = parseCurlCommand(tempString);
       setRenderString(curlString);
     }
-  }
+  }, [ parseCurlCommand, stepData]);
+  
+  // useEffect(() => {
+  //   handleRender(step);
+  // }, [handleRender, step]);
+
   return !stepData ? (
     <div>Loading...</div>
   ) : (
