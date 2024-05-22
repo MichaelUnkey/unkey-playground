@@ -1,15 +1,22 @@
 "use client";
 
+import { CodeBlock } from "./ui/codeBlock";
 import TerminalProvider from "./terminalProvider";
 import Terminal from "./terminal";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./ui/accordion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Button } from "./ui/button";
 import { useCallback, useEffect, useState } from "react";
 import { handleCurlServer } from "../lib/helper";
-import { type stepDataType, data } from "@/lib/data";
-import { Step1, Step2, Step3, Step4, Step5, Step6, Step7, Step8, Step9, Step10, Step11 } from "./stepComponents";
-
+import {type stepDataType, data } from "@/lib/data";
 
 export default function KeyPlayground() {
+
   const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
   const [stepData, setStepData] = useState<stepDataType>(data);
   // Curl Commands
@@ -19,49 +26,42 @@ export default function KeyPlayground() {
   // Step Data
   const [step, setStep] = useState<number>(1);
   // Shared Data
-const [timeStamp, setTimeStamp] = useState<number>(0);
+  const [timeStamp, setTimStamp]= useState<number>(Date.now() + 24 * 60 * 60 * 1000);
   const [keyId, setKeyId] = useState<string>("");
   const [keyName, setKeyName] = useState<string>("");
   // Router
-  // const router = useRouter();
-  // const pathname = usePathname();
-  // const searchParams = useSearchParams();
-  const [isMounted, setIsMounted] = useState(false);
-  // const createQueryString = useCallback(
-  //   (name: string, value: string) => {
-      
-  //     const params = new URLSearchParams(searchParams.toString());
-  //     params.set(name, value);
-  //     return params.toString();
-  //   },
-  //   [searchParams]
-  // );
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(name, value);
+      return params.toString();
+    },
+    [searchParams],
+  );
 
 
   useEffect(() => {
-    if(!isMounted) {
-      setTimeStamp(Date.now() + 24 * 60 * 60 * 1000);
-    };
-    setIsMounted(true);
-  }, [isMounted]);
-
-  
-  // useEffect(() => {
-  //   const params = new URLSearchParams(searchParams.toString());
-  //   params.get("step")
-  //     ? setStep(parseInt(params.get("step") as string))
-  //     : setStep(1);
-  // }, [pathname, searchParams]);
+    const params = new URLSearchParams(searchParams.toString());
+    params.get("step")
+      ? setStep(parseInt(params.get("step") as string))
+      : setStep(1);
+  }, [pathname, searchParams]);
 
   function handleSteps(step: number) {
-    setStep(step);
+    router.push(pathname + "?" + createQueryString("step", step.toString()));
   }
 
- 
+  useEffect(() => {
+    handleRender(step);
+  }, [handleRender, step]);
 
-  const parseCurlCommand = useCallback((stepString: string) => {
+  function parseCurlCommand(stepString: string) {
     let tempString = stepString;
-    
+
     tempString = tempString.replace("<timeStamp>", timeStamp.toString());
     if (apiId) {
       tempString =
@@ -72,7 +72,7 @@ const [timeStamp, setTimeStamp] = useState<number>(0);
     tempString =
       keyName.length > 0 ? tempString.replace("<key>", keyName) : tempString;
     return tempString;
-  }, [apiId, keyId, keyName, timeStamp]);
+  }
 
   async function handleButtonClick(index: number) {
     let tempString = stepData[index]?.curlCommand ?? "";
@@ -94,9 +94,7 @@ const [timeStamp, setTimeStamp] = useState<number>(0);
       if (step === 1) {
         setKeyId(result.keyId);
         setKeyName(result.key);
-        stepData[2].curlCommand = parseCurlCommand(
-          stepData[2].curlCommand ?? ""
-        );
+        stepData[2].curlCommand = parseCurlCommand(stepData[2].curlCommand ?? "");
       }
 
       handleRender(step + 1);
@@ -107,19 +105,13 @@ const [timeStamp, setTimeStamp] = useState<number>(0);
   async function handleTerminalRequest(curlString: string) {
     handleCurl(curlString);
   }
-  const handleRender = useCallback((index: number) => {
+  async function handleRender(index: number) {
     if (stepData) {
       let tempString = stepData[index].curlCommand ?? "";
       const curlString = parseCurlCommand(tempString);
       setRenderString(curlString);
     }
-  }, [ parseCurlCommand, stepData]);
-  
-  // useEffect(() => {
-  //   handleRender(step);
-  // }, [handleRender, step]);
-
-  
+  }
   return !stepData ? (
     <div>Loading...</div>
   ) : (
@@ -602,17 +594,3 @@ const [timeStamp, setTimeStamp] = useState<number>(0);
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
