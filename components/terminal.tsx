@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useContext, useEffect } from "react";
 import { ReactTerminal, TerminalContext } from "react-terminal";
-
+import { useMemo } from 'react';
 function Terminal(props: {
   sendRequest: (curl: string) => void;
   response: string;
@@ -19,12 +19,93 @@ function Terminal(props: {
   const [response, setResponse] = useState("");
   const [allowInput, setAllowInput] = useState(true);
 
+  const commands = useMemo(() => {
+    return {
+      help: (
+        <span>
+          <span>--------------------------</span>
+          <br />
+          <strong>clear</strong> - clears the console. <br />
+          <strong>change_prompt &lt;PROMPT&gt;</strong> - Change the prompt of the
+          terminal. <br />
+          <strong>change_theme &lt;THEME&gt;</strong> - Changes the theme of the
+          terminal. Allowed themes - light, dark, material-light, material-dark,
+          material-ocean, matrix and dracula. <br />
+          <strong>toggle_control_bar</strong> - Hides / Display the top controlpn
+          bar. <br />
+          <strong>toggle_control_buttons</strong> - Hides / Display the top
+          buttons on control bar. <br />
+          <strong>curl</strong> - Sends a curl request. <br />
+        </span>
+      ),
+
+      change_prompt: (prompt: string) => {
+        setPrompt(prompt);
+      },
+
+      change_theme: (theme: string) => {
+        const validThemes = [
+          "light",
+          "dark",
+          "material-light",
+          "material-dark",
+          "material-ocean",
+          "matrix",
+          "dracula",
+        ];
+        if (!validThemes.includes(theme)) {
+          return `Theme ${theme} not valid. Try one of ${validThemes.join(", ")}`;
+        }
+        setTheme(theme);
+      },
+
+      toggle_control_bar: () => {
+        setControlBar(!controlBar);
+      },
+
+      toggle_control_buttons: () => {
+        setControlButtons(!controlButtons);
+      },
+      curl: async (curl: any) => {
+        if(curl === "") return "Please enter a valid curl command";
+        setAllowInput(false);
+        setCurl(curl);
+        props.sendRequest(curl);
+        console.log("curl", curl);
+      },
+      curlCommand: async (curl: any) => {
+        setAllowInput(false);
+        setBufferedContent((previous) => (
+          <>
+            {previous}
+            <span>--------------------------</span>
+            <br />
+            <span>{curl}</span>
+            {<br />}
+          </>
+        ));
+      },
+      curlResponse: async (response: any) => {
+        setBufferedContent((previous) => (
+          <>
+            {previous}
+            <span>--------------------------</span>
+            <br />
+            <span>{response}</span>
+            {<br />}
+          </>
+        ));
+        setAllowInput(true);
+      },
+    };
+  }, [controlBar, controlButtons, props, setBufferedContent]);
+
   useEffect(() => {
     if (props.curlString !== curl) {
       setCurl(props.curlString);
       commands.curlCommand(props.curlString);
     }
-  }, [props.curlString]);
+  }, [props.curlString, commands, curl]);
 
   useEffect(() => {
     setResponse(props.response);
@@ -32,89 +113,9 @@ function Terminal(props: {
       setResponse(props.response);
       commands.curlResponse(props.response);
     }
-  }, [props.response]);
+  }, [props.response,commands, response]);
 
-  const commands = {
-    help: (
-      <span>
-        <span>--------------------------</span>
-        <br />
-        <strong>clear</strong> - clears the console. <br />
-        <strong>change_prompt &lt;PROMPT&gt;</strong> - Change the prompt of the
-        terminal. <br />
-        <strong>change_theme &lt;THEME&gt;</strong> - Changes the theme of the
-        terminal. Allowed themes - light, dark, material-light, material-dark,
-        material-ocean, matrix and dracula. <br />
-        <strong>toggle_control_bar</strong> - Hides / Display the top controlpn
-        bar. <br />
-        <strong>toggle_control_buttons</strong> - Hides / Display the top
-        buttons on control bar. <br />
-        <strong>evaluate_math_expression &lt;EXPR&gt;</strong> - Evaluates a
-        mathematical expression (eg, <strong>4*4</strong>) by hitting a public
-        API, api.mathjs.org. <br />
-        <strong>wait &lt;TIME&gt;</strong> - Wait for TIME (seconds). <br />
-        <strong>count_to &lt;NUM&gt;</strong> Count from 1 to NUM (integer).
-      </span>
-    ),
-
-    change_prompt: (prompt: string) => {
-      setPrompt(prompt);
-    },
-
-    change_theme: (theme: string) => {
-      const validThemes = [
-        "light",
-        "dark",
-        "material-light",
-        "material-dark",
-        "material-ocean",
-        "matrix",
-        "dracula",
-      ];
-      if (!validThemes.includes(theme)) {
-        return `Theme ${theme} not valid. Try one of ${validThemes.join(", ")}`;
-      }
-      setTheme(theme);
-    },
-
-    toggle_control_bar: () => {
-      setControlBar(!controlBar);
-    },
-
-    toggle_control_buttons: () => {
-      setControlButtons(!controlButtons);
-    },
-    curl: async (curl: any) => {
-      setAllowInput(false);
-      setCurl(curl);
-      props.sendRequest(curl);
-      console.log("curl", curl);
-    },
-    curlCommand: async (curl: any) => {
-      setAllowInput(false);
-      setBufferedContent((previous) => (
-        <>
-          {previous}
-          <span>--------------------------</span>
-          <br />
-          <span>{curl}</span>
-          {<br />}
-        </>
-      ));
-    },
-    curlResponse: async (response: any) => {
-      setBufferedContent((previous) => (
-        <>
-          {previous}
-          <span>--------------------------</span>
-          <br />
-          <span>{response}</span>
-          {<br />}
-        </>
-      ));
-      setAllowInput(true);
-    },
-  };
+  
 
   const welcomeMessage = (
     <span>
@@ -123,12 +124,23 @@ function Terminal(props: {
   );
 
   return (
-    <div className="h-[1000px]">
       <ReactTerminal
+        className="h-64"
+        //scrollToBottom={true}
+        themes={{
+          "my-custom-theme": {
+            themeBGColor: "#272B36",
+            themeToolbarColor: "#DBDBDB",
+            themeColor: "#FFFEFC",
+            themePromptColor: "#a917a8",
+            
+          }
+        }}
+        theme="my-custom-theme"
         enableInput={allowInput}
         setInput={"Input"}
         prompt={prompt}
-        theme={theme}
+        //theme={theme}
         showControlBar={controlBar}
         showControlButtons={controlButtons}
         welcomeMessage={welcomeMessage}
@@ -137,7 +149,6 @@ function Terminal(props: {
           return `${command} passed on to default handler with arguments ${commandArguments}`;
         }}
       />
-    </div>
   );
 }
 

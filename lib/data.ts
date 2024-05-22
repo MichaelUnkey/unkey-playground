@@ -29,7 +29,7 @@ export const data: stepDataType = [
     headers: undefined,
     method: undefined,
     blurb:
-      "Welcome to the Unkey playground. Here you can test out the Unkey API. Click on 'Next' or step 1 to begin.",
+      "Here you can test out the Unkey API using curl commands to make Unkey API calls.",
     curlCommand: undefined,
   },
   {
@@ -43,7 +43,7 @@ export const data: stepDataType = [
     },
     method: "POST",
     blurb:
-      "Lets start by creating a key. In any of these steps you can click the 'Next' button to automatically use the command and see the result. Copy or type the command into the terminal and make sure to use the provided apiId.",
+      `Making requests to Unkey's API is easy. Lets start with creating a key for a user. We will use the curl command in ther codeblock for this.`,
     curlCommand: `curl --request POST
      --url https://api.unkey.dev/v1/keys.createKey
      --header 'Authorization: Bearer <token>'
@@ -61,7 +61,7 @@ export const data: stepDataType = [
     },
     method: "GET",
     blurb:
-      "Lets get the key we just created. This will show any data related to this key.",
+      "Lets get the key we just created. This will show any data related key data.",
     curlCommand: `curl --request GET
      --url https://api.unkey.dev/v1/keys.getKey?keyId=<keyId>
      --header 'Authorization: Bearer <token>'`,
