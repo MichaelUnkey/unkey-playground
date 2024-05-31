@@ -6,7 +6,7 @@ import { GeistMono } from "geist/font/mono";
 import { cn } from "@/lib/utils";
 import { type Message } from "@/lib/data";
 import TextAnimator from "../../components/ui/textAnimator";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import startData from "@/lib/data";
 import { handleCurlServer } from "@/lib/helper";
 
@@ -17,7 +17,13 @@ export default function PlaygroundHome() {
   const timeStamp = useRef<number>(Date.now() + 24 * 60 * 60 * 1000);
   const keyId = useRef<string>();
   const keyName = useRef<string>();
+  const scrollRef = useRef<null | HTMLDivElement>(null);
 
+
+ 
+useEffect(() => {
+  scrollRef?.current?.scrollIntoView({ behavior: "smooth" });
+}, [historyItems]);
   const parseCurlCommand = useCallback(
     (stepString: string) => {
       let tempString = stepString;
@@ -48,15 +54,16 @@ export default function PlaygroundHome() {
     let temp = historyItems;
     temp.push({ content: input, color: color });
     updateHistoryItems([...temp]);
+    
+    
   }
 
   async function handleCurl(curlString: string) {
-    postNewLine("Processing...", "text-green-500");
-    if(!curlString.includes("curl")){
-        postNewLine(`{"Error", "Invalid Curl Command"}`, "text-red-500");
-        return;
+    postNewLine(`Processing...`, "text-green-500");
+    if (!curlString.includes("curl")) {
+      postNewLine(`{"Error", "Invalid Curl Command"}`, "text-red-500");
+      return;
     }
-    // setTerminalInput({ content: "Processing...", color: "text-green-500" });
     const parsedCurlString = curlString.replace("--data", "--data-raw");
     const response = await handleCurlServer(parsedCurlString);
     if (response) {
@@ -72,13 +79,13 @@ export default function PlaygroundHome() {
       if (result.keyId) {
         keyId.current = result.keyId;
       }
-      if(result.key){
+      if (result.key) {
         keyName.current = result.key;
       }
-      console.log("Result", result);
 
       const newCurl = parseCurlCommand(
-        startData[step.current + 1].curlCommand ?? "");
+        startData[step.current + 1].curlCommand ?? ""
+      );
       postNewLine(startData[step.current + 1].header, "text-white");
       const newMessages = startData[step.current + 1].messages;
       newMessages.map((item: Message) => {
@@ -87,49 +94,56 @@ export default function PlaygroundHome() {
       });
       postNewLine(newCurl, "text-white");
       step.current += 1;
+
+     
     }
   }
 
   const HistoryList = () => {
-    
     return historyItems?.map((item, index) => {
       {
+        const isCurl = item.content.includes("curl");
         if (index === historyItems.length - 1) {
           return (
-            <pre
-              key={index}
-              className={cn(
-                "flex flex-row text-lg font-medium leading-7",
-                item.color,
-                GeistMono.className
-              )}
-            >
-              <TextAnimator
-                input={item.content}
-                repeat={0}
-                style={cn(
-                  "flex flex-row text-lg font-medium leading-7",
+            <div className="h-full snap-end mt-4" ref={scrollRef}>
+              <pre
+                onClick={() => handleSubmit(item.content)}
+                key={index}
+                className={cn(
+                  "flex flex-row text-lg font-medium leading-7 snap-end",
                   item.color,
-                  GeistMono.className
+                  GeistMono.className,
+                  isCurl
+                    ? `transition duration-500 hover:-translate-y-1 hover:translate-x-1 snap-end`
+                    : ""
                 )}
-              />
-              <div className=" snap-end h-20">{" "}</div>
-            </pre>
+              >
+                <TextAnimator
+                  input={item.content}
+                  repeat={0}
+                  style={
+                    "background-color: #111827; color: #4C0DB2; padding: 0.5rem; border-radius: 0.5rem; "
+                  }
+                />
+             
+              </pre>
+            </div>
           );
         } else {
           return (
             <div
               key={index}
-              className={cn("flex flex-row", GeistMono.className)}
+              className={cn("flex flex-row snap-end mt-4", GeistMono.className)}
             >
               <pre
                 className={cn(
-                  "flex flex-row text-lg font-medium leading-7",
+                  "flex flex-row text-lg font-medium leading-7 snap-end",
                   item.color,
                   GeistMono.className
                 )}
               >
                 {item.content}
+               
               </pre>
             </div>
           );
@@ -144,7 +158,7 @@ export default function PlaygroundHome() {
           Unkey API Playground
         </h1>
         <div className=" min-w-full h-full mt-12">
-          <div className="flex flex-row w-full h-8 bg-gray-900 rounded-t-lg drop-shadow-[0_2px_1px_rgba(0,0,0,0.7)]">
+          <div className="flex flex-row w-full h-8 bg-[#383837] rounded-t-lg drop-shadow-[0_2px_1px_rgba(0,0,0,0.7)]">
             <div className="flex flex-col w-1/3">
               <KeyRound size={18} className="mx-2 mt-1" />
             </div>
@@ -155,11 +169,11 @@ export default function PlaygroundHome() {
               Step <SquareArrowOutUpRight size={18} className="pt-1 mx-2" />
             </div>
           </div>
-          <div className="flex flex-col min-w-full h-[900px] bg-gray-900 overflow-hidden ">
-            <div className="flex flex-col w-full rounded-lg pt-4 pl-6 scrollbar-hide overflow-y-scroll scroll-smooth snap-y">
+          <div className="flex flex-col min-w-full h-[900px] bg-[#1F1F1E] overflow-hidden ">
+            <div  onChange={() => scrollTo()} className="flex flex-col w-full rounded-lg pt-4 pl-6 scrollbar-hide overflow-y-scroll scroll-smooth snap-y">
               <HistoryList />
+              <div ref={scrollRef}></div>
             </div>
-           
           </div>
           <TerminalInput sendInput={(cmd) => handleSubmit(cmd)} />
         </div>
