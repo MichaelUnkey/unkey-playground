@@ -152,13 +152,13 @@ useEffect(() => {
     });
   };
   return (
-    <div className="flex flex-col w-full h-full justify-center">
+    <div className="flex flex-col w-full h-full justify-center ">
       <div className="mx-auto w-full h-full justify-center max-w-[1440px]">
         <h1 className="section-title-heading-gradient max-sm:mx-6 max-sm:text-4xl font-medium text-[4rem] leading-[4rem] max-w-xl text-left mt-16 py-2">
           Unkey API Playground
         </h1>
         <div className=" min-w-full h-full mt-12">
-          <div className="flex flex-row w-full h-8 bg-[#383837] rounded-t-lg drop-shadow-[0_2px_1px_rgba(0,0,0,0.7)]">
+          <div className="flex flex-row w-full h-8 bg-[#383837]/60 rounded-t-lg drop-shadow-[0_2px_1px_rgba(0,0,0,0.7)]">
             <div className="flex flex-col w-1/3">
               <KeyRound size={18} className="mx-2 mt-1" />
             </div>
@@ -169,7 +169,7 @@ useEffect(() => {
               Step <SquareArrowOutUpRight size={18} className="pt-1 mx-2" />
             </div>
           </div>
-          <div className="flex flex-col min-w-full h-[900px] bg-[#1F1F1E] overflow-hidden ">
+          <div className="flex flex-col min-w-full h-[900px] bg-[#1F1F1E]/80 overflow-hidden ">
             <div  onChange={() => scrollTo()} className="flex flex-col w-full rounded-lg pt-4 pl-6 scrollbar-hide overflow-y-scroll scroll-smooth snap-y">
               <HistoryList />
               <div ref={scrollRef}></div>

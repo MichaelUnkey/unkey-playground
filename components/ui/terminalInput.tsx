@@ -37,7 +37,7 @@ interface TerminalInputProps extends React.ComponentPropsWithoutRef<"div"> {
     }
   
     return (
-      <div className={`flex w-full bg-[#1F1F1E] border border-white/30 mt-0 overflow-y-scroll scrollbar-hide`}>
+      <div className={`flex w-full bg-[#1F1F1E]/70 border border-white/30 mt-0 overflow-y-scroll scrollbar-hide`}>
         <label className="animate-pulse pl-4 mt-2 text-xl text-white">
           {">>>"}
         </label>
