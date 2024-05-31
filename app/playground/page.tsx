@@ -133,11 +133,11 @@ useEffect(() => {
           return (
             <div
               key={index}
-              className={cn("flex flex-row snap-end mt-4", GeistMono.className)}
+              className={cn(`flex flex-row snap-end mt-4 delay-[${index * 500}ms]`, GeistMono.className)}
             >
               <pre
                 className={cn(
-                  "flex flex-row text-lg font-medium leading-7 snap-end",
+                  ":flex flex-row text-lg font-medium leading-7 snap-end",
                   item.color,
                   GeistMono.className
                 )}
