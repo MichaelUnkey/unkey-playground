@@ -9,6 +9,7 @@ import TextAnimator from "../../components/ui/textAnimator";
 import { useCallback, useEffect, useRef, useState } from "react";
 import startData from "@/lib/data";
 import { handleCurlServer } from "@/lib/helper";
+import { useFormState } from "react-dom";
 
 export default function PlaygroundHome() {
   const apiId = process.env.NEXT_PUBLIC_UNKEY_API_ID;
@@ -102,8 +103,9 @@ useEffect(() => {
   const HistoryList = () => {
     return historyItems?.map((item, index) => {
       {
-        const isCurl = item.content.includes("curl");
-        if (index === historyItems.length - 1) {
+        const isLast = index === historyItems.length - 1;
+        const isCurl = item.content.includes("curl --request");
+        if(isLast && isCurl){
           return (
             <div className="h-full snap-end mt-4" ref={scrollRef}>
               <pre
@@ -125,11 +127,11 @@ useEffect(() => {
                     "background-color: #111827; color: #4C0DB2; padding: 0.5rem; border-radius: 0.5rem; "
                   }
                 />
-             
               </pre>
             </div>
           );
-        } else {
+        }
+        if(!isLast && isCurl) {
           return (
             <div
               key={index}
@@ -148,6 +150,77 @@ useEffect(() => {
             </div>
           );
         }
+        return (
+          <div
+            key={index}
+            className={cn(`flex flex-row snap-end mt-4 text-pretty`, GeistMono.className)}
+          >
+            <p
+              className={cn(
+                ":flex flex-row text-lg font-medium leading-7 snap-end text-pretty",
+                item.color,
+                GeistMono.className
+              )}
+            >
+              {item.content}
+            </p>
+          </div>
+        );
+      //   if (index === historyItems.length - 1) {
+      //     if(isCurl) {
+            
+      //     }else {
+      //       return (
+      //       <div className="h-full snap-end mt-4 text-pretty">
+      //         <div
+      //           onClick={() => handleSubmit(item.content)}
+      //           key={index}
+      //           className={cn(
+      //             "flex flex-row text-lg font-medium leading-7 snap-end text-pretty",
+      //             item.color,
+      //             GeistMono.className,
+      //             isCurl
+      //               ? `transition duration-500 hover:-translate-y-1 hover:translate-x-1 snap-end`
+      //               : ""
+      //           )}
+      //         >
+      //           <TextAnimator
+      //             input={item.content}
+      //             repeat={0}
+      //             style={
+      //               "background-color: #111827; color: #4C0DB2; padding: 0.5rem; border-radius: 0.5rem; text-wrap: pretty"
+      //             }
+      //           />
+             
+      //         </div>
+      //       </div>
+      //     );}
+          
+          
+      //   } else {
+      //     if(isCurl) {
+      //       return (
+      //         <div
+      //           key={index}
+      //           className={cn(`flex flex-row snap-end mt-4 delay-[${index * 500}ms]`, GeistMono.className)}
+      //         >
+      //           <pre
+      //             className={cn(
+      //               ":flex flex-row text-lg font-medium leading-7 snap-end",
+      //               item.color,
+      //               GeistMono.className
+      //             )}
+      //           >
+      //             {item.content}
+                 
+      //           </pre>
+      //         </div>
+      //       );
+      //     }else {
+           
+      //     }
+          
+      //   }
       }
     });
   };
@@ -170,7 +243,7 @@ useEffect(() => {
             </div>
           </div>
           <div className="flex flex-col min-w-full h-[900px] bg-[#1F1F1E]/80 overflow-hidden ">
-            <div  onChange={() => scrollTo()} className="flex flex-col w-full rounded-lg pt-4 pl-6 scrollbar-hide overflow-y-scroll scroll-smooth snap-y">
+            <div  onChange={() => scrollTo()} className="flex flex-col w-full rounded-lg pt-4 pl-6 scrollbar-hide overflow-y-scroll scroll-smooth snap-y pr-24">
               <HistoryList />
               <div ref={scrollRef}></div>
             </div>
