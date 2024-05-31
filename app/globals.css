@@ -43,6 +43,7 @@ body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -55,3 +56,4 @@ body {
   font-family: monospace;
   white-space: pre;
 }
+

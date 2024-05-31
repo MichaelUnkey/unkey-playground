@@ -18,30 +18,54 @@ const steps: Step[] = [];
 // Step 1 Create your first key
   const step1Header = "";
   const step1Messages: Message[] = [
-    { content: "Step 1: Create your first key", color: "text-white"},
+    { content: `Step 1: Create your first key
+    `, color: "text-white"},
     { content: `Welcome to the Unkey playground
-Here you can test how Unkey works using curl commands. The first step is to create your first user key.
-Use the following command in the terminal. Normally you would place your root key created in the
-dashboard where the <token> is in the example. For now leave it as is and we will handle that for you.`, 
+Here you can test how Unkey's API works using curl commands. 
+The first step is to create a key you can give to your user.
+This will be used to access your API and authenticate them.
+You would normally need and apiId and root key. 
+We have done this for you today but normally it would be done in your Unkey dashboard.
+For now leave the <token> today, this is where your root key would go. 
+For each step, type in or copy the curl below into the input at the bottom and hit enter.
+You may also click the "Do it for me" button to its right if you would like.
+
+`, 
+    color: "text-white" 
+    },
+    { content: `As you can see its a typical POST request with a url, headers and data. 
+The Bearer in the first header authenticates you in the Unkey system.
+The data object passes what api you would like to create a key for.
+
+`, 
     color: "text-white" 
     },
     {
       content: `curl --request POST --url https://api.unkey.dev/v1/keys.createKey
 --header 'Authorization: Bearer <token>
 --header 'Content-Type: application/json
---data '{"apiId": "${apiId}"}'`,
+--data '{"apiId": "${apiId}"}'
+
+`,
       color: "text-violet-600",
     },
   ];
   const step1CurlCommand =`curl --request POST --url https://api.unkey.dev/v1/keys.createKey
 --header 'Authorization: Bearer <token>
 --header 'Content-Type: application/json
---data '{"apiId": "${apiId}"}'`
+--data '{"apiId": "${apiId}"}'
+`
   
 // Step 2 Get the key we just created
-  const step2Header = "Step 2: Get the key we just created";
+  const step2Header = `Step 2: Get the key we just created
+  `;
   const step2Messages: Message[] = [
-    { content: "Lets get the key we just created. This will show any data related key data.", color: "text-white" },
+    { content: `Nice Job! 
+    Now that we have created a user key let us use the getKey endpoint to get some info.
+    A typical key will have useful information like roles, permissions, remaining uses, 
+    ownerId and more. A full list can be found on our docs
+    https://www.unkey.com/docs/api-reference/keys/get
+    `, color: "text-white" },
   ];
   const step2CurlCommand = `curl --request GET
 --url https://api.unkey.dev/v1/keys.getKey?keyId=<keyId> 
@@ -50,7 +74,11 @@ dashboard where the <token> is in the example. For now leave it as is and we wil
 // Step 3 Verify the key
   const step3Header = "Step 3: Verify the key";
   const step3Messages: Message[] = [
-    { content: "Now we can verify the key we just created. This will give us some data for analytics and simulate a typical verification process your user might make.", color: "text-white" },
+    { content: `lets go!
+    Looks like that worked and returned some data. 
+    This object can get much larger depending on the options added to the key. 
+    Now we can verify the key we just created to make sure it will work for a user. 
+    Each verification will add some analytics data we will get in a later step.`, color: "text-white" },
   ];
   const step3CurlCommand =  `curl --request POST
 --url https://api.unkey.dev/v1/keys.verifyKey
@@ -60,7 +88,13 @@ dashboard where the <token> is in the example. For now leave it as is and we wil
 // Step 4  Update the key with ownerId
   const step4Header = "Step 4: Update the key with ownerId";
   const step4Messages: Message[] = [
-    { content: "Now lets try to update the key with an ownerId. The ownerId can help you link your user to a spacific key.", color: "text-white" }
+    { content: `You will notice the enabled: true meaning meaning it can be used for authenticating. 
+    Now lets try to update the key with an ownerId. 
+    The ownerId can help you link your user to a spacific key or set of keys.
+    For example if our customer was Acme we could mark all the keys with Acme_Company. 
+    This could then be searched to see all keys witht he Acme_Company ownerId. 
+    Making it easier for you to track keys for each customer. 
+    Lets add that now. Feel free to put any OwnerId you want in place of user_1234.`, color: "text-white" }
   ];
   const step4CurlCommand = `curl --request POST
 --url https://api.unkey.dev/v1/keys.updateKey
@@ -71,7 +105,11 @@ dashboard where the <token> is in the example. For now leave it as is and we wil
 //Step 5 Verify the key again
   const step5Header = "Step 5: Verify the key again";
   const step5Messages: Message[] = [
-    { content: "Lets now verify the key just to make sure your key is updated with the ownerId", color: "text-white" }
+    { content: `If this worked correctly you should get back a {} in response.
+    This is normal and signifies success. 
+    If there was an error you would have gotten back an error in stead.
+    Lets now verify the key just to make sure your key is updated with the ownerId. 
+    Just to give you piece of mind.`, color: "text-white" }
   ];
   const step5CurlCommand = `curl --request POST
 --url https://api.unkey.dev/v1/keys.verifyKey
@@ -81,7 +119,12 @@ dashboard where the <token> is in the example. For now leave it as is and we wil
 // Step 6 Update with an expiration date
   const step6Header = "Step 6: Update with an expiration date";
   const step6Messages: Message[] = [
-    { content: "Lets now lets add an expiration date. This will disable the key based on the epoch time that is set. ", color: "text-white" }
+    { content: `The response from step 5 should show the ownerId you enter in step 4.
+    If you want to only allow a user access for a day or month. 
+    This can be done by adding an expiration date in unix timestamp in milliseconds.
+    This will disable the key from being used after that time has passed. 
+    You may also change that expiration to a later time after it expires. 
+    Say a user pays for another month it can be re activated.`, color: "text-white" }
   ];
   const step6CurlCommand = `curl --request POST
 --url https://api.unkey.dev/v1/keys.updateKey
@@ -92,7 +135,9 @@ dashboard where the <token> is in the example. For now leave it as is and we wil
 // Step 7 Verify the key again
   const step7Header = "Step 7: Verify the key again";
   const step7Messages: Message[] = [
-    { content: "Again lets verify the key to make sure expiration was set correctly. It will also give up more data for the next step.", color: "text-white" },
+    { content: `Again we should have gotten {} in response.
+    Lets verify the key to make sure expiration was set correctly. 
+    It will also give up more analytics data for the next step.`, color: "text-white" },
   ];
   const step7CurlCommand = `curl --request POST
 --url https://api.unkey.dev/v1/keys.verifyKey
@@ -102,7 +147,10 @@ dashboard where the <token> is in the example. For now leave it as is and we wil
 // Step 8
   const step8Header = "Step 8: Get analytics data";
   const step8Messages: Message[] = [
-    { content: "Now lets see the analytics data on our key. This will show how many times the key was verified and other data.", color: "text-white" }
+    { content: `Nice! it looks like the expires value now holds the value you entered.
+    Now lets see the analytics data on our key. 
+    This will show how many times the key was successfuly verified, ratelimited, 
+    or the usage has been exceeeded.`, color: "text-white" }
     ];
   const step8CurlCommand = `curl --request GET
 --url https://api.unkey.dev/v1/keys.getVerifications?keyId=<keyId>
@@ -111,7 +159,12 @@ dashboard where the <token> is in the example. For now leave it as is and we wil
 //Step 9
   const step9Header = "Step 9: Delete the key";
   const step9Messages: Message[] = [
-    { content: "Lets say we no longer want this key to have any access. While we can use updateKey to set enabled to false. Here lets delete the key so it has not option of being used again.", color: "text-white" },
+    { content: `If it was a new key and all our verify keys worked correctly. 
+    success should show a value of 3.
+    Lets say we no longer want this key to have any access. 
+    While we can use updateKey to set enabled to false. 
+    Here lets delete the key so it has not option of being used again.
+    Maybe the key was leaked to a bad actor or it is no longer needed for any reason.`, color: "text-white" },
   ];
   const step9CurlCommand = `curl --request POST
 --url https://api.unkey.dev/v1/keys.deleteKey
@@ -121,7 +174,9 @@ dashboard where the <token> is in the example. For now leave it as is and we wil
 //Step 10 Last Verification
   const step10Header = "Step 10: Last verification";
   const step10Messages: Message[] = [
-    { content: "Now lets verify that deleting a key worked as it should. Use the verifyKey route to check the key again.", color: "text-white" },
+    { content: `Now lets verify that deleting a key worked as it should. 
+    Use the verifyKey route to check the key again.
+    This should now return valid: false meaning this key is no longer a valid Unkey key.`, color: "text-white" },
   ];
   const step10CurlCommand = `curl --request POST
 --url https://api.unkey.dev/v1/keys.verifyKey
@@ -131,7 +186,10 @@ dashboard where the <token> is in the example. For now leave it as is and we wil
 //Step 11 Congrats!
   const step11Header = "Congrats!";
   const step11Messages: Message[] = [
-    { content: "Like what you see? Sign up for an account to get your own API setup in no time.", color: "text-white" },
+    { content: `Nice job. 
+    I hope this was useful in some way on learning about some Unkey basics. 
+    To learn more visit our docs. 
+    To get started feel free to setup an unkey dashboard for your project. `, color: "text-white" },
   ];
   const step11CurlCommand = ``;
 
