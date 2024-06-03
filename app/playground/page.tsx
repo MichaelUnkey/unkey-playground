@@ -105,7 +105,7 @@ useEffect(() => {
       {
         const isLast = index === historyItems.length - 1;
         const isCurl = item.content.includes("curl --request");
-        if(isLast && isCurl){
+        if(isLast){
           return (
             <div className="h-full snap-end mt-4" ref={scrollRef}>
               <pre
@@ -166,61 +166,6 @@ useEffect(() => {
             </p>
           </div>
         );
-      //   if (index === historyItems.length - 1) {
-      //     if(isCurl) {
-            
-      //     }else {
-      //       return (
-      //       <div className="h-full snap-end mt-4 text-pretty">
-      //         <div
-      //           onClick={() => handleSubmit(item.content)}
-      //           key={index}
-      //           className={cn(
-      //             "flex flex-row text-lg font-medium leading-7 snap-end text-pretty",
-      //             item.color,
-      //             GeistMono.className,
-      //             isCurl
-      //               ? `transition duration-500 hover:-translate-y-1 hover:translate-x-1 snap-end`
-      //               : ""
-      //           )}
-      //         >
-      //           <TextAnimator
-      //             input={item.content}
-      //             repeat={0}
-      //             style={
-      //               "background-color: #111827; color: #4C0DB2; padding: 0.5rem; border-radius: 0.5rem; text-wrap: pretty"
-      //             }
-      //           />
-             
-      //         </div>
-      //       </div>
-      //     );}
-          
-          
-      //   } else {
-      //     if(isCurl) {
-      //       return (
-      //         <div
-      //           key={index}
-      //           className={cn(`flex flex-row snap-end mt-4 delay-[${index * 500}ms]`, GeistMono.className)}
-      //         >
-      //           <pre
-      //             className={cn(
-      //               ":flex flex-row text-lg font-medium leading-7 snap-end",
-      //               item.color,
-      //               GeistMono.className
-      //             )}
-      //           >
-      //             {item.content}
-                 
-      //           </pre>
-      //         </div>
-      //       );
-      //     }else {
-           
-      //     }
-          
-      //   }
       }
     });
   };
